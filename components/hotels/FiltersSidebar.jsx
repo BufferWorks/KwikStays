@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 
-export default function FiltersSidebar({ localities = [] }) {
+export default function FiltersSidebar({ localities = [], isMobile = false }) {
   const [priceRange, setPriceRange] = useState([500, 5000]);
   const [localitySearch, setLocalitySearch] = useState("");
   const [expandedSections, setExpandedSections] = useState({
@@ -45,7 +45,7 @@ export default function FiltersSidebar({ localities = [] }) {
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden sticky top-24">
+    <div className={`bg-white overflow-hidden ${isMobile ? "" : "rounded-xl shadow-sm sticky top-24"}`}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200 bg-gray-50">
         <h2 className="text-lg font-bold text-gray-900">Filters</h2>

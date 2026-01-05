@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import SearchBar from "@/components/hotels/SearchBar";
 import FiltersSidebar from "@/components/hotels/FiltersSidebar";
 import HotelCard from "@/components/hotels/HotelCard";
+import MobileSearchActions from "@/components/common/MobileSearchActions";
+import { SortSelect } from "@/components/common/SortModal";
 
 import { fetchHotelsByCity } from "@/lib/hotels";
 import { getCitySeoContent } from "@/lib/seo/citySeo";
@@ -129,7 +131,7 @@ export default async function HotelsByCityPage({ params }) {
           <div className="flex items-center justify-between mb-6">
             <div>
               {/* SEO H1 — VISIBLE AND STYLED */}
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
+              <h1 className="text-lg lg:text-3xl font-bold text-gray-900 mb-1">
                 Hotels in {city.name}
               </h1>
               <p className="text-sm text-gray-600">
@@ -156,15 +158,7 @@ export default async function HotelsByCityPage({ params }) {
                 <span className="text-sm font-medium">Map View</span>
               </button>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Sort By</span>
-                <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                  <option>Popularity</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                  <option>Guest Rating</option>
-                </select>
-              </div>
+              <SortSelect />
             </div>
           </div>
 
@@ -230,6 +224,7 @@ export default async function HotelsByCityPage({ params }) {
             )}
           </article>
         </div>
+        <MobileSearchActions localities={localities} />
       </main>
 
       {/* -------- Breadcrumb Structured Data (SEO) -------- */}

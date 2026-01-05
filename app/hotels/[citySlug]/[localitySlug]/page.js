@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import SearchBar from "@/components/hotels/SearchBar";
 import FiltersSidebar from "@/components/hotels/FiltersSidebar";
 import HotelCard from "@/components/hotels/HotelCard";
+import MobileSearchActions from "@/components/common/MobileSearchActions";
+import { SortSelect } from "@/components/common/SortModal";
 
 import { fetchHotelsByLocality } from "@/lib/hotels";
 import { getLocalitySeoContent } from "@/lib/seo/localitySeo";
@@ -103,7 +105,7 @@ export default async function HotelsByLocalityPage({ params }) {
     <>
       <main className="bg-gray-50 min-h-screen">
         {/* Search */}
-        <div className="bg-white sticky top-0 z-40 border-b">
+        <div className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-200">
           <SearchBar city={cityObj.name} />
         </div>
 
@@ -136,24 +138,61 @@ export default async function HotelsByLocalityPage({ params }) {
             </ol>
           </nav>
 
-          <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-            Hotels in {localityObj.name}, {cityObj.name}
-          </h1>
-          <p className="text-sm text-gray-600 mb-6">
-            {hotels.length}+ Hotels in {localityObj.name}, {cityObj.name}
-          </p>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-lg lg:text-3xl font-bold text-gray-900 mb-1">
+                Hotels in {localityObj.name}, {cityObj.name}
+              </h1>
+              <p className="text-sm text-gray-600">
+                {hotels.length}+ Hotels in {localityObj.name}, {cityObj.name}
+              </p>
+            </div>
+
+            {/* Map View Toggle & Sort */}
+            <div className="flex items-center gap-3">
+              <button className="hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-emerald-500 transition-colors">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                  />
+                </svg>
+                <span className="text-sm font-medium">Map View</span>
+              </button>
+
+              <SortSelect />
+            </div>
+          </div>
 
           <div className="flex gap-6">
             {/* Filters */}
-            <aside className="hidden lg:block w-72">
+            <aside className="hidden lg:block w-72 shrink-0">
               <FiltersSidebar localities={localities} />
             </aside>
 
             {/* Listings */}
-            <section className="flex-1 space-y-4">
-              {hotels.map((hotel) => (
-                <HotelCard key={hotel.slug} hotel={hotel} />
-              ))}
+            <section className="flex-1 min-w-0">
+              <div className="space-y-4">
+                {hotels.map((hotel) => (
+                  <HotelCard key={hotel.slug} hotel={hotel} />
+                ))}
+              </div>
+
+              {/* Load More / Pagination */}
+              {hotels.length >= 20 && (
+                <div className="mt-8 text-center">
+                  <button className="px-6 py-3 border-2 border-emerald-500 text-emerald-600 font-semibold rounded-lg hover:bg-emerald-50 transition-colors">
+                    Load More Hotels
+                  </button>
+                </div>
+              )}
             </section>
           </div>
 
@@ -187,6 +226,7 @@ export default async function HotelsByLocalityPage({ params }) {
             )}
           </article>
         </div>
+        <MobileSearchActions localities={localities} />
       </main>
 
       {/* ---------- ItemList Schema ---------- */}

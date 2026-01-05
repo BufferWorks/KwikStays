@@ -20,7 +20,12 @@ import {
   Home, // Added
   Languages, // Added
   Phone, // Added
+  Headphones, // Added
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSearchSuggestions } from "@/lib/search/useSearchSuggestions";
+import SearchSuggestions from "@/components/search/SearchSuggestions";
+
 // --- Mock Data (Unchanged) ---
 const hotelData = [
   {
@@ -73,31 +78,6 @@ const hotelData = [
   },
 ];
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Golidhvyi Ber",
-    quote:
-      '"Insomr toe dolorlorem oit, consetot add elistsclng elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua."',
-    image: "https://placehold.co/100x100/e2e8f0/333?text=GB&font=roboto",
-  },
-  {
-    id: 2,
-    name: "Pauliang Inlove",
-    image: "https://placehold.co/100x100/e2e8f0/333?text=PI&font=roboto",
-  },
-  {
-    id: 3,
-    name: "Vino Relact Intio",
-    image: "https://placehold.co/100x100/e2e8f0/333?text=VRI&font=roboto",
-  },
-  {
-    id: 4,
-    name: "Pauliang Intipe",
-    image: "https://placehold.co/100x100/e2e8f0/333?text=PI&font=roboto",
-  },
-];
-
 const cityData = [
   {
     name: "Goa",
@@ -119,9 +99,9 @@ const cityData = [
       "https://cdn.britannica.com/37/189837-050-F0AF383E/New-Delhi-India-War-Memorial-arch-Sir.jpg",
   },
   {
-    name: "Karnataka",
+    name: "Bangalore",
     image:
-      "https://i0.wp.com/www.tusktravel.com/blog/wp-content/uploads/2023/06/Hampi-in-karnataka-min.jpg?fit=1024%2C668&ssl=1",
+      "https://as2.ftcdn.net/v2/jpg/05/57/79/11/1000_F_557791137_tpPXXT6YxaJPKcYwPn1ygvgRdxdCjI8f.jpg",
   },
   {
     name: "Jaipur",
@@ -152,9 +132,18 @@ const cityData = [
 
 // --- Reusable Components ---
 
-// 1. Navigation Bar
+// 1. Navigation Bar (Redesigned)
+// 1. Navigation Bar (Redesigned)
 const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navLinks = [
     { name: "Home", href: "#" },
@@ -164,37 +153,32 @@ const Navbar = () => {
   ];
 
   return (
-    // Mobile: relative, bg-white. Desktop: absolute, bg-dark
-    <nav className="relative md:absolute top-0 left-0 right-0 z-40 bg-white md:bg-[#242a3a]">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-white shadow-md py-2"
+          : "bg-white/95 backdrop-blur-sm py-4"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* --- DESKTOP NAV (Unchanged) --- */}
-        <div className="hidden md:flex items-center justify-between h-20 text-white">
-          {/* Logo */}
-          <div className="shrink-0">
-            <a href="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                {/* FIXED: Replaced next/image with <img> */}
-                <img
-                  src="/logo.png"
-                  alt="Kwik Stayz Logo"
-                  width="50"
-                  height="50"
-                  className="rounded-full transition-transform group-hover:scale-105"
-                />
-              </div>
-              <span className="text-xl font-bold text-white">
-                Kwik Stayz
-              </span>
-            </a>
+        <div className="flex items-center justify-between h-16">
+          {/* Logo & Brand */}
+          <div className="shrink-0 flex items-center gap-2 cursor-pointer">
+            <div className="w-10 h-10 bg-linear-to-br from-[#f8a11e] to-[#ffc45e] rounded-xl flex items-center justify-center text-white shadow-sm">
+              <span className="font-bold text-xl">K</span>
+            </div>
+            <span className="text-2xl font-bold text-gray-900 tracking-tight">
+              Kwik<span className="text-[#f8a11e]">Stayz</span>
+            </span>
           </div>
 
           {/* Desktop Nav Links */}
-          <div className="flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-1 bg-gray-50/50 p-1.5 rounded-full border border-gray-100">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-200 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className="px-5 py-2 rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all duration-200"
               >
                 {link.name}
               </a>
@@ -202,91 +186,65 @@ const Navbar = () => {
           </div>
 
           {/* Desktop User Actions */}
-          <div className="flex items-center space-x-3">
-            <button
-              className="p-2.5 rounded-full text-white hover:bg-white/10 transition-all duration-200"
-              aria-label="User Profile"
-            >
-              <User size={22} />
-            </button>
-            <button
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-white text-[#242a3a] hover:bg-gray-100 transition-all duration-200 shadow-md hover:shadow-lg"
-            >
+          <div className="hidden md:flex items-center space-x-4">
+            <button className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#f8a11e] transition-colors">
               <Briefcase size={18} />
-              My Bookings
+              <span>My Bookings</span>
+            </button>
+            <div className="h-6 w-px bg-gray-200"></div>
+            <button className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold bg-[#f8a11e] text-white hover:bg-[#e0901a] transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-200">
+              <User size={18} />
+              Login / Signup
+            </button>
+          </div>
+
+          {/* Mobile Nav Toggle */}
+          <div className="md:hidden flex items-center gap-3">
+            <button className="p-2 text-gray-600 bg-gray-50 rounded-full">
+              <Globe size={20} />
+            </button>
+            <button className="p-2 text-gray-600 bg-gray-50 rounded-full">
+              <User size={20} />
             </button>
           </div>
         </div>
-
-        {/* --- MOBILE NAV (New White Design) --- */}
-        <div className="md:hidden flex items-center justify-between h-20 text-gray-900">
-           {/* Left Icon (Translate) */}
-           <button className="text-gray-700 p-2">
-            <Languages size={24} /> 
-          </button>
-          
-          {/* Centered Brand Name */}
-          <span className="text-2xl font-bold text-gray-900">
-            Kwik Stayz
-          </span>
-          
-          {/* Right Icon (Phone) */}
-          <button className="text-gray-700 p-2">
-            <Phone size={24} />
-          </button>
-        </div>
       </div>
-
     </nav>
   );
 };
 
-// 2. Hero Section (Unchanged)
+// 2. Hero Section (Redesigned)
 const Hero = () => {
   return (
-    <div className="hidden md:block relative pt-20 h-[500px] md:h-[550px] lg:h-[600px] text-white">
-      {/* Background Images */}
-      <div className="absolute inset-0 flex">
-        <div className="w-1/3 h-full">
-          <img
-            src="https://hblimg.mmtcdn.com/content/hubble/img/goakolkatadestimages/mmt/activities/m_Goa_3_l_666_1000.jpg"
-            alt="Goa Beach"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="w-1/3 h-full">
-          <img
-            src="https://static.wixstatic.com/media/055605_65e20a7fcbc54e2e8720adfc2544c35e~mv2.jpg/v1/fill/w_801,h_634,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/taj_new_contant_edited.jpg"
-            alt="Taj Mahal"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="w-1/3 h-full">
-          <img
-            src="https://d3rr2gvhjw0wwy.cloudfront.net/uploads/mandators/49581/file-manager/camel-caravan-sahara-morocco.jpg"
-            alt="Rajasthan Fort"
-            className="w-full h-full object-cover"
-          />
-        </div>
+    <div className="hidden md:block relative h-[550px] lg:h-[650px] overflow-hidden">
+      {/* Immersive Background */}
+      <div className="absolute inset-0">
+        <img
+          src="https://images.unsplash.com/photo-1548013146-72479768bada?q=80&w=2076&auto=format&fit=crop"
+          alt="Hero Background"
+          className="w-full h-full object-cover"
+        />
+        {/* Premium Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10"></div>
       </div>
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-linear-to-b from-black/10 via-black/50 to-black/10"></div>
+
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-            Your Journey Begins Here
-          </h1>
-          <p className="mt-4 text-lg md:text-xl">
-            Experience Handpicked Stays in India's Most Enchanting Destinations
-          </p>
-          <a
-            href="#"
-            className="mt-8 inline-block bg-[#f8a11e] text-white px-8 py-3 rounded-full font-semibold text-lg hover:bg-opacity-90 transition-colors"
-          >
-            Find Your Escape
-          </a>
+      <div className="relative z-10 h-full flex flex-col justify-center items-center text-center max-w-5xl mx-auto px-4 -mt-10">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium mb-6 animate-fade-in-up">
+          <Star size={14} className="text-[#f8a11e] fill-current" />
+          <span>Trusted by 1M+ Travelers</span>
         </div>
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-tight mb-6 drop-shadow-lg">
+          Find Your Perfect <br />
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-[#f8a11e] to-[#ffc45e]">
+            Staycation
+          </span>{" "}
+          Today
+        </h1>
+        <p className="text-lg md:text-xl text-gray-200 max-w-2xl font-light mb-10 leading-relaxed">
+          Discover handpicked hotels, resorts, and homestays across India's most
+          beautiful destinations.
+        </p>
       </div>
     </div>
   );
@@ -297,96 +255,223 @@ const SearchBar = React.forwardRef((props, ref) => {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(1);
+  const [query, setQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const { cities, localities } = useSearchSuggestions(query);
+  const router = useRouter();
 
   return (
     <>
-      {/* MOBILE SEARCH BAR */}
-      <div ref={ref} className="md:hidden mx-3 mt-4 mb-6 rounded-2xl shadow-xl bg-white/95 p-4 relative z-30">
-        <div className="flex flex-col gap-2">
-          <label htmlFor="mobile-location" className="block text-xs font-semibold text-gray-600 pl-1">Destination</label>
-          <input
-            type="text"
-            name="mobile-location"
-            id="mobile-location"
-            className="text-lg text-gray-900 placeholder-gray-400 w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-[#f8a11e] focus:ring-2 focus:outline-none transition"
-            placeholder="Search for city, location or hotel"
-          />
-        </div>
-        <div className="flex flex-col gap-2 mt-4">
-          <div className="flex gap-2">
-            <div className="flex-1 flex flex-col">
-              <label htmlFor="checkin-date" className="block text-xs font-semibold text-gray-600 mb-1">Check-in</label>
+      {/* MOBILE UI SECTION */}
+      <div ref={ref} className="md:hidden flex flex-col gap-6 pb-6">
+        {/* 1. Search Heading & Box */}
+        <div className="px-5 mt-20">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">
+            Find hotels at best prices
+          </h1>
+
+          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 p-5">
+            {/* Destination Input */}
+            <div className="mb-4">
+              <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">
+                Destination
+              </label>
               <input
-                type="date"
-                id="checkin-date"
-                name="checkin-date"
-                value={checkIn}
-                onChange={e => setCheckIn(e.target.value)}
-                className="rounded-xl border border-gray-200 px-3 py-2 text-base font-medium text-gray-700 focus:ring-[#f8a11e] focus:border-[#f8a11e] focus:outline-none"
+                type="text"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                placeholder="e.g. Koramangala, Bangalore"
+                className="w-full text-lg font-semibold text-gray-900 placeholder-gray-400 border-b border-gray-200 pb-2 focus:border-[#f8a11e] focus:outline-none rounded-none bg-transparent"
               />
+              {showSuggestions && (
+                <div className="absolute left-4 right-4 mt-1 z-50">
+                  <SearchSuggestions
+                    cities={cities}
+                    localities={localities}
+                    onSelect={() => {
+                      setShowSuggestions(false);
+                      setQuery("");
+                    }}
+                  />
+                </div>
+              )}
             </div>
-            <div className="flex-1 flex flex-col">
-              <label htmlFor="checkout-date" className="block text-xs font-semibold text-gray-600 mb-1">Check-out</label>
-              <input
-                type="date"
-                id="checkout-date"
-                name="checkout-date"
-                value={checkOut}
-                onChange={e => setCheckOut(e.target.value)}
-                className="rounded-xl border border-gray-200 px-3 py-2 text-base font-medium text-gray-700 focus:ring-[#f8a11e] focus:border-[#f8a11e] focus:outline-none"
-              />
+
+            <div className="flex gap-4 mb-6">
+              {/* Date */}
+              <div className="flex-1">
+                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">
+                  Date
+                </label>
+                <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+                  <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+                    {checkIn
+                      ? new Date(checkIn).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                        })
+                      : "Today"}
+                    {" - "}
+                    {checkOut
+                      ? new Date(checkOut).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                        })
+                      : "Tomorrow"}
+                  </span>
+                </div>
+                {/* Hidden Inputs for logic */}
+                <input
+                  type="date"
+                  value={checkIn}
+                  onChange={(e) => setCheckIn(e.target.value)}
+                  className="hidden"
+                />
+                <input
+                  type="date"
+                  value={checkOut}
+                  onChange={(e) => setCheckOut(e.target.value)}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Guests */}
+              <div className="flex-1">
+                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">
+                  Guests
+                </label>
+                <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+                  <span className="text-sm font-semibold text-gray-900">
+                    1 Room, {guests} Guests
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button className="w-full bg-[#f02f32] text-white font-bold text-lg py-3.5 rounded-lg shadow-lg hover:bg-[#d6282b] active:scale-[0.98] transition-all">
+              Search
+            </button>
+          </div>
+        </div>
+
+        {/* 2. Explore Destination (Horizontal Scroll) */}
+        <div className="pl-5">
+          <h2 className="text-lg font-bold text-gray-900 mb-3">
+            Explore your next destination
+          </h2>
+          <div className="flex gap-3 overflow-x-auto pb-4 pr-5 no-scrollbar snap-x">
+            {/* 'Near Me' Option */}
+            <div className="flex flex-col items-center gap-2 min-w-[72px] snap-start cursor-pointer">
+              <div className="w-[72px] h-[72px] rounded-2xl bg-blue-500 flex items-center justify-center text-white shadow-md">
+                <MapPin size={28} />
+              </div>
+              <span className="text-xs font-medium text-gray-600">Near me</span>
+            </div>
+
+            {/* Cities */}
+            {cityData.slice(0, 8).map((city) => (
+              <div
+                key={city.name}
+                className="flex flex-col items-center gap-2 min-w-[72px] snap-start cursor-pointer"
+              >
+                <img
+                  src={city.image}
+                  alt={city.name}
+                  className="w-[72px] h-[72px] rounded-2xl object-cover shadow-sm border border-gray-100"
+                />
+                <span className="text-xs font-medium text-gray-600">
+                  {city.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 3. Promo Banners (Horizontal Scroll) */}
+        <div className="px-5">
+          <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar snap-x">
+            {/* Banner 1 */}
+            <div className="min-w-[85%] h-40 bg-linear-to-r from-gray-900 to-gray-800 rounded-2xl p-5 relative overflow-hidden snap-center text-white flex flex-col justify-center">
+              <div className="absolute right-0 bottom-0 opacity-20 transform translate-x-4 translate-y-4">
+                <BadgePercent size={120} />
+              </div>
+              <h3 className="text-2xl font-bold mb-1 relative z-10">
+                Book 1, <span className="text-[#f8a11e]">Get 1 Free!</span>
+              </h3>
+              <p className="text-sm text-gray-300 mb-4 relative z-10">
+                Book for 2 Nights, Pay for 1
+              </p>
+              <button className="w-fit bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-bold shadow-sm">
+                Book Now
+              </button>
+            </div>
+
+            {/* Banner 2 */}
+            <div className="min-w-[85%] h-40 bg-[#fff8e6] rounded-2xl p-5 relative overflow-hidden snap-center text-gray-900 flex flex-col justify-center border border-[#f8a11e]/20">
+              <div className="absolute right-0 bottom-0 opacity-10 transform translate-x-4 translate-y-4">
+                <Home size={120} className="text-[#f8a11e]" />
+              </div>
+              <h3 className="text-2xl font-bold mb-1 relative z-10">
+                Starting @ <span className="text-[#f8a11e]">₹999</span>
+              </h3>
+              <p className="text-sm text-gray-600 mb-4 relative z-10">
+                Premium stays at budget prices
+              </p>
+              <button className="w-fit bg-[#ff4f64] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm">
+                View Offers
+              </button>
             </div>
           </div>
-          <div className="flex flex-col mt-2">
-            <label htmlFor="mobile-guests" className="block text-xs font-semibold text-gray-600 mb-1">Guests</label>
-            <input
-              type="number"
-              id="mobile-guests"
-              name="mobile-guests"
-              min={1}
-              value={guests}
-              onChange={e => setGuests(Number(e.target.value))}
-              className="rounded-xl border border-gray-200 px-3 py-2 text-base font-medium text-gray-700 w-full focus:ring-[#f8a11e] focus:border-[#f8a11e] focus:outline-none"
-            />
-          </div>
         </div>
-        <div className="pt-5">
-          <button
-            type="submit"
-            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-lg font-semibold text-white bg-[#f8a11e] hover:bg-[#ffb649] focus:outline-none focus:ring-2 focus:ring-[#f8a11e] active:scale-95 transition"
-          >
-            Search
-          </button>
-        </div>
+
+        {/* Divider */}
+        <div className="w-full h-2 bg-gray-50 border-t border-b border-gray-100 mt-2"></div>
       </div>
-      
-      {/* Divider */}
-      <div className="md:hidden w-full border-t border-gray-200 mb-4" />
-      
+
       {/* DESKTOP (Unchanged) */}
       <div className="hidden md:block relative -mt-16 z-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-lg shadow-2xl p-6 md:p-8">
             <form className="grid grid-cols-1 md:grid-cols-10 gap-4 items-end">
               {/* Location */}
-              <div className="md:col-span-3">
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <MapPin className="h-5 w-5 text-gray-500" />
-                  </div>
-                  <input
-                    type="text"
-                    name="location"
-                    id="location"
-                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3 bg-white/50"
-                    placeholder="Mathura, Agra, Goa..."
+              <div className="relative md:col-span-3">
+                <input
+                  type="text"
+                  name="location"
+                  id="location"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  placeholder="Mathura, Agra, Goa..."
+                  className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 sm:text-sm border-gray-300 rounded-md py-3 bg-white/50"
+                />
+
+                {showSuggestions && (
+                  <SearchSuggestions
+                    cities={cities}
+                    localities={localities}
+                    onSelect={() => {
+                      setShowSuggestions(false);
+                      setQuery("");
+                    }}
                   />
-                </div>
+                )}
               </div>
+
               {/* Check-in */}
               <div className="md:col-span-2">
-                <label htmlFor="checkin" className="block text-sm font-medium text-gray-700">Check in Date</label>
+                <label
+                  htmlFor="checkin"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Check in Date
+                </label>
                 <input
                   type="date"
                   name="checkin"
@@ -396,7 +481,12 @@ const SearchBar = React.forwardRef((props, ref) => {
               </div>
               {/* Check-out */}
               <div className="md:col-span-2">
-                <label htmlFor="checkout" className="block text-sm font-medium text-gray-700">Check out Date</label>
+                <label
+                  htmlFor="checkout"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Check out Date
+                </label>
                 <input
                   type="date"
                   name="checkout"
@@ -406,7 +496,12 @@ const SearchBar = React.forwardRef((props, ref) => {
               </div>
               {/* Guests */}
               <div className="md:col-span-1">
-                <label htmlFor="guests" className="block text-sm font-medium text-gray-700">Guests</label>
+                <label
+                  htmlFor="guests"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Guests
+                </label>
                 <input
                   type="number"
                   name="guests"
@@ -426,6 +521,28 @@ const SearchBar = React.forwardRef((props, ref) => {
                   Search
                 </button>
               </div>
+
+              {/* Popular Cities (Desktop) */}
+              <div className="md:col-span-10 mt-2 flex gap-3 items-center pt-2">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                  Trending:
+                </span>
+                <div className="flex gap-2">
+                  {cityData.slice(0, 6).map((city) => (
+                    <button
+                      key={city.name}
+                      type="button"
+                      onClick={() => {
+                        const locInput = document.getElementById("location");
+                        if (locInput) locInput.value = city.name;
+                      }}
+                      className="px-3 py-1 bg-white/40 border border-gray-200/50 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-600 hover:bg-[#f8a11e] hover:text-white hover:border-[#f8a11e] transition-all cursor-pointer shadow-sm"
+                    >
+                      {city.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </form>
           </div>
         </div>
@@ -439,37 +556,129 @@ SearchBar.displayName = "SearchBar";
 // 4. City Destinations (Unchanged)
 const CityDestinations = () => {
   return (
-    <section className="py-8 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-center mb-5 gap-2">
-          <MapPin size={20} className="text-[#f8a11e]" />
-          <h2 className="text-xl font-bold text-center text-gray-900 tracking-tight">Top Destinations</h2>
+    <section className="py-12 bg-gray-50/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <MapPin size={18} className="text-[#f8a11e]" />
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+                Trending Getaways
+              </h2>
+            </div>
+            <p className="text-gray-500 text-sm ml-7">
+              Most searched destinations by travelers
+            </p>
+          </div>
+          <a
+            href="#"
+            className="hidden md:inline-flex items-center text-sm font-semibold text-[#f8a11e] hover:text-[#e0901a]"
+          >
+            View all cities <Search size={14} className="ml-1" />
+          </a>
         </div>
-        <div className="flex overflow-x-auto gap-4 pb-4 snap-x">
-          {cityData.map((city) => (
-            <div
+
+        <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto pb-4 md:pb-0 snap-x md:snap-none">
+          {cityData.slice(0, 5).map((city) => (
+            <a
               key={city.name}
-              className="flex-none text-center w-24 snap-start"
+              href={`/hotels/${city.name.toLowerCase()}`}
+              className="min-w-[160px] md:min-w-0 snap-start group relative h-40 md:h-52 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 block"
             >
-              <a
-                href="/hotels/bangalore"
-                className="group block px-1 active:scale-95 transition"
-                tabIndex={0}
-              >
-                <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-md border border-gray-200 bg-gray-50 transition-transform group-hover:scale-105 group-active:scale-95 mx-auto">
-                  <img
-                    src={city.image}
-                    alt={city.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://placehold.co/150x150/cccccc/969696?text=Image+Not+Found';
-                    }}
-                  />
-                </div>
-                <p className="mt-3 text-sm font-semibold text-gray-700 group-hover:text-[#f8a11e] truncate">
+              <img
+                src={city.image}
+                alt={city.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+              <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform">
+                <h3 className="text-lg font-bold text-white mb-0.5">
                   {city.name}
+                </h3>
+                <p className="text-xs text-gray-300 font-medium">
+                  Starting from ₹999
                 </p>
-              </a>
+              </div>
+            </a>
+          ))}
+
+          {cityData.slice(5, 10).map((city) => (
+            <a
+              key={city.name}
+              href={`/hotels/${city.name.toLowerCase()}`}
+              className="min-w-[160px] md:min-w-0 snap-start group relative h-40 md:h-52 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 block" // Hidden on mobile to save space
+            >
+              <img
+                src={city.image}
+                alt={city.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+              <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform">
+                <h3 className="text-lg font-bold text-white mb-0.5">
+                  {city.name}
+                </h3>
+                <p className="text-xs text-gray-300 font-medium">
+                  Starting from ₹899
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// 4.5 Why Choose Us (New Section)
+const WhyChooseUs = () => {
+  const features = [
+    {
+      icon: CheckCircle,
+      title: "Sanitised Stays",
+      desc: "Thoroughly sanitized properties for your safety",
+    },
+    {
+      icon: BadgePercent,
+      title: "Best Price Guarantee",
+      desc: "Find a lower price? We'll match it.",
+    },
+    {
+      icon: Star,
+      title: "Rated 4.5+",
+      desc: "Thousands of happy travelers trust us",
+    },
+    {
+      icon: Headphones, // Need to make sure Headphones is imported or use another icon
+      title: "24/7 Support",
+      desc: "We are always here to help you",
+    },
+  ];
+
+  return (
+    <section className="py-20 bg-white border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Why Book With KwikStayz?
+          </h2>
+          <p className="text-gray-500">
+            We ensure every stay is memorable, safe, and comfortable.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {features.map((f, i) => (
+            <div
+              key={i}
+              className="flex flex-col items-center text-center p-6 rounded-2xl bg-gray-50 hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-gray-100 group"
+            >
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-[#f8a11e] mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-100">
+                <f.icon size={28} />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                {f.title}
+              </h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -494,20 +703,33 @@ const HotelCard = ({ hotel }) => {
       </div>
       <div className="p-4 flex flex-col gap-1">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-base font-bold text-gray-900 truncate">{hotel.name}</h3>
+          <h3 className="text-base font-bold text-gray-900 truncate">
+            {hotel.name}
+          </h3>
           <div className="flex items-center text-yellow-400">
             <Star size={14} className="mr-1" />
-            <span className="text-xs font-semibold text-yellow-500">{hotel.rating}</span>
+            <span className="text-xs font-semibold text-yellow-500">
+              {hotel.rating}
+            </span>
           </div>
         </div>
         <div className="flex items-center text-xs text-gray-500 gap-1">
-          <span>{hotel.reviewText} ・ {hotel.reviews} reviews</span>
+          <span>
+            {hotel.reviewText} ・ {hotel.reviews} reviews
+          </span>
         </div>
         <div className="flex items-center gap-3 mt-1">
-          {hotel.amenities && hotel.amenities.includes('Wifi') && <Wifi size={14} className="text-[#f8a11e]" />} {hotel.amenities && hotel.amenities.includes('Food') && <Utensils size={14} className="text-[#f8a11e]" />} 
+          {hotel.amenities && hotel.amenities.includes("Wifi") && (
+            <Wifi size={14} className="text-[#f8a11e]" />
+          )}{" "}
+          {hotel.amenities && hotel.amenities.includes("Food") && (
+            <Utensils size={14} className="text-[#f8a11e]" />
+          )}
         </div>
         <div className="flex items-center justify-between mt-2">
-          <span className="text-lg font-bold text-[#f8a11e]">₹{hotel.price.toLocaleString("en-IN")}</span>
+          <span className="text-lg font-bold text-[#f8a11e]">
+            ₹{hotel.price.toLocaleString("en-IN")}
+          </span>
           <a
             href="/hotel/happy-stays-bangalore-624556"
             className="px-4 py-1.5 rounded-xl bg-[#f8a11e] text-white text-xs font-semibold hover:bg-[#ffb649] transition active:scale-95 shadow"
@@ -531,7 +753,10 @@ const Recommendations = () => {
         {/* Mobile hotel carousel */}
         <div className="md:hidden flex gap-4 overflow-x-auto pb-2 snap-x">
           {hotelData.map((hotel) => (
-            <div className="snap-start min-w-[70vw] max-w-xs w-[260px]" key={hotel.id}>
+            <div
+              className="snap-start min-w-[70vw] max-w-xs w-[260px]"
+              key={hotel.id}
+            >
               <HotelCard hotel={hotel} />
             </div>
           ))}
@@ -547,38 +772,6 @@ const Recommendations = () => {
   );
 };
 
-// 7. Testimonials (Unchanged)
-const Testimonials = () => {
-  return (
-    <section className="hidden md:block py-10 md:py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-xl font-bold text-center text-gray-900 mb-5 tracking-tight md:text-3xl md:mb-12">
-          Customer Testimonials
-        </h2>
-        <div className="flex flex-col items-center md:grid md:grid-cols-2 gap-6 md:gap-12 ">
-          <div className="text-center md:text-left">
-            <img src={testimonials[0].image} alt={testimonials[0].name} className="rounded-full mx-auto w-20 h-20 shadow mb-4 border-2 border-[#f8a11e]" />
-            <p className="text-base text-[#f8a11e] italic font-semibold mb-2">{testimonials[0].quote}</p>
-            <p className="font-semibold text-gray-800">{testimonials[0].name}</p>
-          </div>
-          <div className="flex justify-center md:justify-end items-center gap-4">
-            {testimonials.slice(1).map((testimonial) => (
-              <div key={testimonial.id} className="text-center flex flex-col items-center">
-                <img
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  className="w-14 h-14 md:w-20 md:h-20 rounded-full shadow-lg border-2 border-gray-100 mb-1"
-                />
-                <p className="text-xs md:text-sm font-medium text-gray-700 truncate w-16">{testimonial.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
 // 8. Footer (MODIFIED)
 const Footer = () => {
   return (
@@ -588,19 +781,29 @@ const Footer = () => {
           <h3 className="text-white font-semibold mb-4">Destinations</h3>
           <ul>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Mathura</a>
+              <a href="#" className="hover:text-white">
+                Mathura
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Agra</a>
+              <a href="#" className="hover:text-white">
+                Agra
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Goa</a>
+              <a href="#" className="hover:text-white">
+                Goa
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Rajasthan</a>
+              <a href="#" className="hover:text-white">
+                Rajasthan
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Karnataka</a>
+              <a href="#" className="hover:text-white">
+                Karnataka
+              </a>
             </li>
           </ul>
         </div>
@@ -608,16 +811,24 @@ const Footer = () => {
           <h3 className="text-white font-semibold mb-4">Company</h3>
           <ul>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">About Us</a>
+              <a href="#" className="hover:text-white">
+                About Us
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Careers</a>
+              <a href="#" className="hover:text-white">
+                Careers
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Press</a>
+              <a href="#" className="hover:text-white">
+                Press
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Blog</a>
+              <a href="#" className="hover:text-white">
+                Blog
+              </a>
             </li>
           </ul>
         </div>
@@ -625,16 +836,24 @@ const Footer = () => {
           <h3 className="text-white font-semibold mb-4">Support</h3>
           <ul>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Contact Us</a>
+              <a href="#" className="hover:text-white">
+                Contact Us
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">FAQ</a>
+              <a href="#" className="hover:text-white">
+                FAQ
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Privacy Policy</a>
+              <a href="#" className="hover:text-white">
+                Privacy Policy
+              </a>
             </li>
             <li className="mt-2">
-              <a href="#" className="hover:text-white">Terms of Service</a>
+              <a href="#" className="hover:text-white">
+                Terms of Service
+              </a>
             </li>
           </ul>
         </div>
@@ -659,11 +878,13 @@ const StickySearchHeader = ({ isVisible }) => {
   return (
     <div
       className={`md:hidden fixed top-2 left-2 right-2 z-40 transition-all duration-300 ease-in-out ${
-        isVisible ? "translate-y-0 opacity-100" : "-translate-y-12 opacity-0 pointer-events-none"
+        isVisible
+          ? "translate-y-0 opacity-100"
+          : "-translate-y-12 opacity-0 pointer-events-none"
       }`}
     >
       {/* Added shadow-xl and rounded-full */}
-      <div className="p-2 bg-white shadow-xl rounded-full"> 
+      <div className="p-2 bg-white shadow-xl rounded-full">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-500" />
@@ -712,9 +933,7 @@ const BottomNav = () => {
             />
             <span
               className={`text-xs font-medium transition-colors ${
-                activeTab === item.name
-                  ? "text-red-500"
-                  : "text-gray-600"
+                activeTab === item.name ? "text-red-500" : "text-gray-600"
               }`}
             >
               {item.name}
@@ -726,9 +945,7 @@ const BottomNav = () => {
   );
 };
 
-
 export default function App() {
- 
   const [isStickySearchVisible, setIsStickySearchVisible] = useState(false);
   const searchBarRef = useRef(null);
 
@@ -737,9 +954,8 @@ export default function App() {
     if (!searchBarEl) return;
 
     const handleScroll = () => {
-
       const searchBarTop = searchBarEl.offsetTop;
-      
+
       if (window.scrollY > searchBarTop) {
         setIsStickySearchVisible(true);
       } else {
@@ -756,16 +972,15 @@ export default function App() {
       <StickySearchHeader isVisible={isStickySearchVisible} />
 
       <Navbar />
-      <main className="md:pt-20 pb-16 md:pb-0 bg-white">
-        
-        <div className="flex flex-col md:flex-col-reverse">
-          <SearchBar ref={searchBarRef} /> 
+      <main className="md:pt-24 pb-16 md:pb-0 bg-white">
+        <div className="flex flex-col md:flex-col-reverse pt-5">
+          <SearchBar ref={searchBarRef} />
           <Hero />
         </div>
-        
+
         <CityDestinations />
+        <WhyChooseUs />
         <Recommendations />
-        <Testimonials />
       </main>
       <Footer />
       <BottomNav />
