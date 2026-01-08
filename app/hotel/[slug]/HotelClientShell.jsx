@@ -8,9 +8,10 @@ import { Star, Wifi, Utensils, MapPin, Users, Sparkles } from "lucide-react";
 /* IMPORT ALL YOUR COMPONENTS HERE */
 import StickyHotelHeader from "@/components/hotel/StickyHotelHeader";
 import Hero from "@/components/hotel/Hero";
+import DesktopHotelInfo from "@/components/hotel/DesktopHotelInfo";
 import Breadcrumb from "@/components/common/Breadcrumb";
 import MobileHotelInfo from "@/components/hotel/MobileHotelInfo";
-import QuickAmenities from "@/components/hotel/QuickAmenities";
+
 import Gallery from "@/components/hotel/Gallery";
 import RoomTypes from "@/components/hotel/RoomTypes";
 import BookingCard from "@/components/hotel/BookingCard";
@@ -47,9 +48,16 @@ export default function HotelClientShell({ hotel }) {
   return (
     <div className="font-sans bg-gray-50 min-h-screen pb-20 md:pb-0">
       <StickyHotelHeader title={hotel.name} />
+
+      {/* Full Width Hero */}
+      <div className="w-full md:mt-0">
+        <Hero hotel={hotel} gallery={hotel.gallery} />
+      </div>
+
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-b-2xl md:rounded-2xl md:shadow-2xl mt-0 md:mt-8 overflow-hidden mb-0 md:mb-6">
-          <Hero hotel={hotel} />
+        {/* Desktop Hotel Info (Below Hero on Desktop) */}
+        <div className="hidden md:block px-3 mb-6">
+          <DesktopHotelInfo hotel={hotel} />
         </div>
         <div className="flex flex-col lg:flex-row gap-8 px-2 md:px-3">
           <div className="flex-1 bg-white rounded-2xl shadow-lg p-6 md:p-8 lg:p-10 -mt-8 md:mt-0 relative z-10">
@@ -60,28 +68,32 @@ export default function HotelClientShell({ hotel }) {
             <div className="hidden md:block">
               <Breadcrumb city={hotel.city.name} cityName={hotel.city.slug} locality={hotel.locality.name} localityName={hotel.locality.slug} />
             </div>
-            <QuickAmenities hotel={hotel} />
-            <Gallery gallery={hotel.gallery || []} />
+            {/* <Gallery gallery={hotel.gallery || []} /> */}
+
+            <AmenitiesGrid amenities={hotel.hotelAmenities || []} />
+            <AboutSection description={hotel.description || ""} />
+
             <RoomTypes
               roomTypes={hotel.roomTypes || []}
               selectedRoom={selectedRoom || {}}
               setSelectedRoom={setSelectedRoom}
             />
-            <AboutSection description={hotel.description || ""} />
-            <AmenitiesGrid amenities={hotel.hotelAmenities || []} />
-            <PoliciesSection policies={hotel.policies || {}} />
-
-            <MapSection
-              geo={{
-                lat: hotel.geo.lat,
-                lng: hotel.geo.lng,
-              }}
-              nearby={(hotel.nearbyPlaces || []).map(
-                p => `${p.name} (${p.distanceKm} km)`
-              )}
-            />
 
             <Reviews reviews={hotel.reviews || []} />
+            <PoliciesSection policies={hotel.policies || {}} />
+
+            <div id="map-section" className="scroll-mt-24">
+              <MapSection
+                geo={{
+                  lat: hotel.geo.lat,
+                  lng: hotel.geo.lng,
+                }}
+                nearby={(hotel.nearbyPlaces || []).map(
+                  p => `${p.name} (${p.distanceKm} km)`
+                )}
+              />
+            </div>
+
             <FaqAccordion faqs={(hotel.faqs || []).map(f => ({ q: f.question, a: f.answer }))} />
             <MobilePricingDetails
               hotel={hotel}
@@ -98,6 +110,6 @@ export default function HotelClientShell({ hotel }) {
         isVisible={isBottomBarVisible}
         selectedRoom={selectedRoom || {}}
       />
-    </div>
+    </div >
   );
 }

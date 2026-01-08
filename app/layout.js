@@ -1,11 +1,12 @@
-import { Poppins, Great_Vibes } from "next/font/google";
+import { Inter, Great_Vibes } from "next/font/google";
 import "./globals.css";
+import Providers from "./providers";
 
-// 1. Configure the Poppins font
-const poppins = Poppins({
+// 1. Configure the Inter font (Minimal/Standard)
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
+  variable: "--font-inter",
+  display: "swap",
 });
 
 const greatVibes = Great_Vibes({
@@ -24,10 +25,11 @@ export default function RootLayout({ children }) {
     <html lang="en">
       {/* 2. Apply the variable AND the 'font-sans' class */}
       <body
-        className={`${poppins.variable} ${greatVibes.variable} font-sans antialiased`}
+        className={`${inter.variable} ${greatVibes.variable} font-sans antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
+      <script src="https://accounts.google.com/gsi/client" async defer></script>
     </html>
   );
 }

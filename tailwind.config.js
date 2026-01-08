@@ -14,7 +14,7 @@ export default {
         muted: "#E5E7EB",
       },
       fontFamily: {
-        sans: ["var(--font-poppins)", "sans-serif"],
+        sans: ["var(--font-inter)", "sans-serif"],
         brand: ["var(--font-great-vibes)", "cursive"],
       },
     },

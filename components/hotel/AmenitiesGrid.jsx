@@ -38,7 +38,7 @@ export default function AmenitiesGrid({ amenities }) {
           return (
             <div key={am} className="flex items-center gap-3 text-gray-700">
               <Icon size={20} className="text-gray-400 flex-shrink-0" />
-              <span className="text-sm md:text-base text-gray-700">{am}</span>
+              <span className="text-sm text-gray-700">{am}</span>
             </div>
           );
         })}

@@ -7,7 +7,7 @@ export default function MapSection({ geo, nearby = [] }) {
 
   return (
     <section className="my-8">
-      <h2 className="text-xl md:text-3xl font-bold mb-6 text-gray-900">
+      <h2 className="text-xl md:text-2xl font-bold mb-6 text-gray-900">
         Location & Nearby
       </h2>
 

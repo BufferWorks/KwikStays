@@ -13,6 +13,7 @@ const RoomTypeSchema = new mongoose.Schema(
     refundable: Boolean,
     amenities: [String],
     image: String,
+    area: String,
   },
   { _id: false }
 );

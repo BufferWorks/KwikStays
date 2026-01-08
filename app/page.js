@@ -137,6 +137,8 @@ const cityData = [
 // 1. Navigation Bar (Redesigned)
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [user, setUser] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -145,6 +147,28 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Check auth status
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) {
+          setUser(data.user);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch user", err));
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      setUser(null);
+      router.refresh(); // Refresh to ensure server components update if any (though this is all client)
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   const navLinks = [
     { name: "Home", href: "#" },
@@ -165,9 +189,6 @@ const Navbar = () => {
         <div className="flex items-center justify-center md:justify-between h-16">
           {/* Logo & Brand */}
           <div className="shrink-0 flex items-center gap-1 cursor-pointer">
-            {/* <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#f8a11e]/10">
-              <Zap className="w-5 h-5 text-[#f8a11e] fill-current" />
-            </div> */}
             <span className="text-3xl font-brand text-gray-900 tracking-wide">
               Kwik <span className="text-[#f8a11e]">Stayz</span>
             </span>
@@ -188,15 +209,45 @@ const Navbar = () => {
 
           {/* Desktop User Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#f8a11e] transition-colors">
-              <Briefcase size={18} />
-              <span>My Bookings</span>
-            </button>
-            <div className="h-6 w-px bg-gray-200"></div>
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold bg-[#f8a11e] text-white hover:bg-[#e0901a] transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-200">
-              <User size={18} />
-              Login / Signup
-            </button>
+            {user ? (
+              <>
+                <button className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#f8a11e] transition-colors">
+                  <Briefcase size={18} />
+                  <span>My Bookings</span>
+                </button>
+                <div className="h-6 w-px bg-gray-200"></div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => router.push("/account")}
+                    className="text-sm font-medium text-gray-700 hover:text-[#f8a11e]"
+                  >
+                    Hi, {user.name?.split(" ")[0] || "User"}
+                  </button>
+
+                  <button
+                    onClick={handleLogout}
+                    className="px-6 py-2.5 rounded-full text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all transform hover:-translate-y-0.5"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <button className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#f8a11e] transition-colors">
+                  <Briefcase size={18} />
+                  <span>My Bookings</span>
+                </button>
+                <div className="h-6 w-px bg-gray-200"></div>
+                <button
+                  onClick={() => router.push("/auth/login")}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold bg-[#f8a11e] text-white hover:bg-[#e0901a] transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-200"
+                >
+                  <User size={18} />
+                  Login / Signup
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -598,11 +649,11 @@ const StickySearchHeader = ({ isVisible }) => {
 const BottomNav = () => {
   const [activeTab, setActiveTab] = useState("Home");
   const navItems = [
-    { name: "Home", icon: Home, href: "#" },
+    { name: "Home", icon: Home, href: "/" },
     { name: "Search", icon: Search, href: "#" },
-    { name: "Bookings", icon: Briefcase, href: "#" },
-    { name: "Offers", icon: BadgePercent, href: "#" },
-    { name: "Account", icon: User, href: "#" },
+    { name: "Bookings", icon: Briefcase, href: "my-bookings" },
+    { name: "Offers", icon: BadgePercent, href: "offers" },
+    { name: "Account", icon: User, href: "account" },
   ];
 
   return (

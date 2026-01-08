@@ -5,6 +5,7 @@ import { connectDB } from "@/lib/db";
 import City from "@/models/City";
 import Locality from "@/models/Locality";
 import Hotel from "@/models/Hotel";
+import Category from "@/models/Category";
 
 //Hotel details api
 
@@ -27,13 +28,11 @@ export async function GET(request, { params }) {
     })
       .populate("city", "name slug")
       .populate("locality", "name slug")
+      .populate("categories", "name slug")
       .lean();
 
     if (!hotel) {
-      return NextResponse.json(
-        { message: "Hotel not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "Hotel not found" }, { status: 404 });
     }
 
     return NextResponse.json(hotel, { status: 200 });

@@ -22,7 +22,7 @@ export default function PoliciesSection({ policies }) {
       </div>
 
       {/* Policy List */}
-      <ul className="space-y-3 list-disc pl-5 text-gray-700 text-sm md:text-base marker:text-gray-400">
+      <ul className="space-y-3 list-disc pl-5 text-gray-700 text-sm marker:text-gray-400">
         <li>
           {policies?.petsAllowed
             ? "Pets are welcome at this property."
