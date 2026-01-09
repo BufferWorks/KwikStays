@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, forwardRef } from "react";
 import { Search, Calendar, Users, MapPin } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSearchSuggestions } from "@/lib/search/useSearchSuggestions";
 import SearchSuggestions from "@/components/search/SearchSuggestions";
 
@@ -33,7 +33,7 @@ const HomeSearchBar = forwardRef((props, ref) => {
     const [guests, setGuests] = useState(1); // Match visual default
 
     const router = useRouter();
-    const searchParams = useSearchParams();
+
 
     // Helper to format slug to title case
     const formatSlug = (slug) => {
@@ -44,31 +44,7 @@ const HomeSearchBar = forwardRef((props, ref) => {
             .join(" ");
     };
 
-    // Sync with URL params on mount
-    useEffect(() => {
-        const cityParam = searchParams.get("city");
-        const localityParam = searchParams.get("locality");
-        const categoryParam = searchParams.get("category");
 
-        if (cityParam) {
-            setSelectedCitySlug(cityParam);
-            const cityName = formatSlug(cityParam);
-            setSelectedCityName(cityName);
-
-            if (localityParam) {
-                setSelectedLocalitySlug(localityParam);
-                const localityName = formatSlug(localityParam);
-                setSelectedLocalityName(localityName);
-                setQuery(localityName);
-            } else {
-                setQuery(cityName);
-            }
-        }
-
-        if (categoryParam) {
-            setCategory(categoryParam);
-        }
-    }, [searchParams]);
 
     // Click outside to close suggestions
     useEffect(() => {
