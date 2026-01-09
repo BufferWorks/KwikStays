@@ -1,7 +1,7 @@
 import React from "react";
 import { BadgePercent } from "lucide-react";
 export default function MobilePricingDetails({ hotel, pricingRef, selectedRoom }) {
-  const price = selectedRoom ? selectedRoom.price : hotel.priceStartingFrom;
+  const price = selectedRoom ? selectedRoom.basePrice : hotel.priceStartingFrom;
   const originalPrice = selectedRoom ? selectedRoom.originalPrice : hotel.priceStartingFrom;
   return (
     <section ref={pricingRef} className="my-8 md:hidden">

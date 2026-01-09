@@ -4,16 +4,68 @@ import mongoose from "mongoose";
 
 const RoomTypeSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    slug: { type: String, required: true },
-    price: { type: Number, required: true },
-    originalPrice: Number,
-    maxGuests: Number,
-    beds: String,
-    refundable: Boolean,
+    name: {
+      type: String,
+      required: true,
+    },
+
+    slug: {
+      type: String,
+      required: true,
+    },
+
+    // Base price per night for this room
+    basePrice: {
+      type: Number,
+      required: true,
+    },
+
+    // Optional strike-through price (UX only)
+    originalPrice: {
+      type: Number,
+    },
+
+    // Ideal guest count without extra charges
+    maxGuests: {
+      type: Number,
+      required: true,
+    },
+
+    // Absolute hard limit per room (NO MORE THAN THIS)
+    maxGuestsWithExtra: {
+      type: Number,
+      required: true,
+      default: 4,
+    },
+
+    // Extra guest pricing (percentage per night)
+    extraGuestPricing: {
+      adultPercent: {
+        type: Number,
+        default: 35, // %
+      },
+      childPercent: {
+        type: Number,
+        default: 25, // %
+      },
+    },
+
+    beds: {
+      type: String, // "1 King Bed", "2 Queen Beds"
+    },
+
+    area: {
+      type: String, // "220 sq ft"
+    },
+
+    refundable: {
+      type: Boolean,
+      default: false,
+    },
+
     amenities: [String],
+
     image: String,
-    area: String,
   },
   { _id: false }
 );

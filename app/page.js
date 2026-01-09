@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 // import { useSearchSuggestions } from "@/lib/search/useSearchSuggestions";
 // import SearchSuggestions from "@/components/search/SearchSuggestions";
 import SearchBar from "@/components/home/HomeSearchBar";
+import { useAuth } from "@/context/AuthContext";
 
 // --- Mock Data (Unchanged) ---
 const hotelData = [
@@ -132,13 +133,12 @@ const cityData = [
   },
 ];
 
-// --- Reusable Components ---
-
 // 1. Navigation Bar (Redesigned)
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [user, setUser] = useState(null);
   const router = useRouter();
+
+  const { user, logout, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -148,34 +148,15 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Check auth status
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.user) {
-          setUser(data.user);
-        }
-      })
-      .catch((err) => console.error("Failed to fetch user", err));
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      setUser(null);
-      router.refresh(); // Refresh to ensure server components update if any (though this is all client)
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
-  };
-
   const navLinks = [
-    { name: "Home", href: "#" },
-    { name: "Destinations", href: "#" },
-    { name: "About Us", href: "#" },
-    { name: "Contact", href: "#" },
+    { name: "Home", href: "/" },
+    { name: "Destinations", href: "/destinations" },
+    { name: "About Us", href: "/about" },
+    { name: "Contact", href: "/contact" },
   ];
+
+  // ⛔ Prevent flicker while auth is loading
+  if (loading) return null;
 
   return (
     <nav
@@ -185,70 +166,74 @@ const Navbar = () => {
           : "bg-white/95 backdrop-blur-sm py-4"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center md:justify-between h-16">
-          {/* Logo & Brand */}
-          <div className="shrink-0 flex items-center gap-1 cursor-pointer">
-            <span className="text-3xl font-brand text-gray-900 tracking-wide">
-              Kwik <span className="text-[#f8a11e]">Stayz</span>
-            </span>
-          </div>
-
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center space-x-1 bg-gray-50/50 p-1.5 rounded-full border border-gray-100">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="px-5 py-2 rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all duration-200"
+      <div className="max-w-7xl mx-auto px-4 flex items-center justify-center md:justify-between h-16">
+        {/* Logo */}
+        <div
+          className="cursor-pointer text-3xl font-brand"
+          onClick={() => router.push("/")}
+        >
+          Kwik <span className="text-[#f8a11e]">Stayz</span>
+        </div>
+        {/* Desktop Nav Links */}{" "}
+        <div className="hidden md:flex items-center space-x-1 bg-gray-50/50 p-1.5 rounded-full border border-gray-100">
+          {" "}
+          {navLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.href}
+              className="px-5 py-2 rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all duration-200"
+            >
+              {" "}
+              {link.name}{" "}
+            </a>
+          ))}{" "}
+        </div>
+        {/* Right actions */}
+        <div className="hidden md:flex items-center gap-4">
+          {user ? (
+            <>
+              <button
+                onClick={() => router.push("/my-bookings")}
+                className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#f8a11e]"
               >
-                {link.name}
-              </a>
-            ))}
-          </div>
+                <Briefcase size={18} />
+                My Bookings
+              </button>
 
-          {/* Desktop User Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            {user ? (
-              <>
-                <button className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#f8a11e] transition-colors">
-                  <Briefcase size={18} />
-                  <span>My Bookings</span>
-                </button>
-                <div className="h-6 w-px bg-gray-200"></div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => router.push("/account")}
-                    className="text-sm font-medium text-gray-700 hover:text-[#f8a11e]"
-                  >
-                    Hi, {user.name?.split(" ")[0] || "User"}
-                  </button>
+              <div className="h-6 w-px bg-gray-200" />
 
-                  <button
-                    onClick={handleLogout}
-                    className="px-6 py-2.5 rounded-full text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all transform hover:-translate-y-0.5"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <button className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#f8a11e] transition-colors">
-                  <Briefcase size={18} />
-                  <span>My Bookings</span>
-                </button>
-                <div className="h-6 w-px bg-gray-200"></div>
-                <button
-                  onClick={() => router.push("/auth/login")}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold bg-[#f8a11e] text-white hover:bg-[#e0901a] transition-all transform hover:-translate-y-0.5 shadow-lg shadow-orange-200"
-                >
-                  <User size={18} />
-                  Login / Signup
-                </button>
-              </>
-            )}
-          </div>
+              <button
+                onClick={() => router.push("/account")}
+                className="text-sm font-medium text-gray-700 hover:text-[#f8a11e]"
+              >
+                Hi, {user.name?.split(" ")[0] || "User"}
+              </button>
+
+              <button
+                onClick={logout}
+                className="px-5 py-2 rounded-full bg-gray-100 text-sm font-bold hover:bg-gray-200"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="flex items-center gap-2 text-sm font-semibold text-gray-600">
+                <Briefcase size={18} />
+                My Bookings
+              </button>
+
+              <div className="h-6 w-px bg-gray-200" />
+
+              <button
+                onClick={() => router.push("/auth/login")}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold bg-[#f8a11e] text-white hover:bg-[#e0901a]"
+              >
+                <User size={18} />
+                Login / Signup
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>
@@ -292,11 +277,6 @@ const Hero = () => {
   );
 };
 
-// 3. SearchBar (ForwardRef for scroll detection)
-// Replaced by imported HomeSearchBar component
-// const SearchBar = React.forwardRef((props, ref) => { ... }); moved to @/components/home/HomeSearchBar.jsx
-
-// 4. City Destinations (Unchanged)
 const CityDestinations = () => {
   return (
     <section className="py-12 bg-gray-50/50">
@@ -715,7 +695,7 @@ export default function App() {
       <StickySearchHeader isVisible={isStickySearchVisible} />
 
       <Navbar />
-      <main className="md:pt-24 pb-16 md:pb-0 bg-white">
+      <main className="md:pt-10 pb-16 md:pb-0 bg-white">
         <div className="flex flex-col md:flex-col-reverse pt-5">
           <SearchBar ref={searchBarRef} />
           <Hero />

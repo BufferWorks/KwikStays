@@ -13,7 +13,7 @@ export default function RoomTypes({ roomTypes, selectedRoom, setSelectedRoom }) 
         {roomTypes.map((room) => {
           const isSelected = selectedRoom.name === room.name;
           // Mocking original price for demo if not present, usually it's higher
-          const originalPrice = Math.round(room.price * 1.4);
+          const originalPrice = Math.round(room.basePrice * 1.4);
 
           return (
             <div
@@ -35,11 +35,11 @@ export default function RoomTypes({ roomTypes, selectedRoom, setSelectedRoom }) 
 
                   <div className="mt-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl font-bold text-gray-900">₹{room.price.toLocaleString()}</span>
+                      <span className="text-xl font-bold text-gray-900">₹{room.basePrice.toLocaleString()}</span>
                       <span className="text-sm text-gray-400 line-through">₹{originalPrice.toLocaleString()}</span>
-                      <span className="text-xs font-bold text-green-600">{Math.round(((originalPrice - room.price) / originalPrice) * 100)}% off</span>
+                      <span className="text-xs font-bold text-green-600">{Math.round(((originalPrice - room.basePrice) / originalPrice) * 100)}% off</span>
                     </div>
-                    <div className="text-[10px] text-gray-400">+ ₹{Math.round(room.price * 0.12)} taxes & fees</div>
+                    <div className="text-[10px] text-gray-400">+ ₹{Math.round(room.basePrice * 0.12)} taxes & fees</div>
                   </div>
                 </div>
 
@@ -163,7 +163,7 @@ export default function RoomTypes({ roomTypes, selectedRoom, setSelectedRoom }) 
                   <div className="flex flex-row md:flex-col justify-between items-end md:items-start mb-4 md:mb-0">
                     <div>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-bold text-gray-900">₹{room.price.toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-gray-900">₹{room.basePrice.toLocaleString()}</span>
                         <span className="text-xs text-gray-500">/ night</span>
                       </div>
                       <div className="text-xs text-gray-400 mt-1">Excludes taxes & fees</div>

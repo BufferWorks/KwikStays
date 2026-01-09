@@ -1,6 +1,7 @@
 import { Inter, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
+import { AuthProvider } from "@/context/AuthContext";
 
 // 1. Configure the Inter font (Minimal/Standard)
 const inter = Inter({
@@ -27,7 +28,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${inter.variable} ${greatVibes.variable} font-sans antialiased`}
       >
-        <Providers>{children}</Providers>
+        <AuthProvider>
+          <Providers>{children}</Providers>
+        </AuthProvider>
       </body>
       <script src="https://accounts.google.com/gsi/client" async defer></script>
     </html>
