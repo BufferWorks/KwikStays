@@ -4,7 +4,23 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2, CheckCircle, XCircle, Clock, Hotel } from "lucide-react";
 
+import { Suspense } from "react";
+
 export default function BookingStatusPage() {
+  return (
+    <Suspense
+      fallback={
+        <CenteredLayout>
+          <LoadingState />
+        </CenteredLayout>
+      }
+    >
+      <BookingStatusContent />
+    </Suspense>
+  );
+}
+
+function BookingStatusContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
