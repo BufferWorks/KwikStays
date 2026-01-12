@@ -27,6 +27,11 @@ export async function GET(req) {
     }
 
     const bookings = await Booking.find({ userId: decoded.userId })
+      .populate({
+        path: "hotel.id",
+        select: "heroImage address slug", // Only fetch the image
+        model: Hotel,
+      })
       .sort({ createdAt: -1 })
       .lean();
 

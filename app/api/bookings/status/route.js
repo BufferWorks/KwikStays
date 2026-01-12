@@ -84,13 +84,6 @@ export async function GET(req) {
         gatewayResponse,
       } = await checkPaymentStatus(payment.merchantOrderId);
 
-      /**
-       * EXPECTED phonepeStatus values (example):
-       * - COMPLETED
-       * - FAILED
-       * - PENDING
-       */
-
       if (transactionId) payment.transactionId = transactionId;
       if (gatewayResponse) payment.gatewayResponse = gatewayResponse;
 

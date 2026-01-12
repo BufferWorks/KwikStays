@@ -103,7 +103,7 @@ export default function CheckoutPage() {
                 // Mobile Deep Linking Fix:
                 // Instead of using PhonePeCheckout.transact, we redirect directly to the URL.
                 // This allows mobile browsers to handle UPI intent links natively.
-                window.location.href = tokenUrl;
+                window.PhonePeCheckout.transact({ tokenUrl });
               } catch (error) {
                 console.error(
                   "Booking API Error:",

@@ -1,4 +1,5 @@
 import { Inter, Great_Vibes } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Providers from "./providers";
 import { AuthProvider } from "@/context/AuthContext";
@@ -31,9 +32,15 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <Providers>{children}</Providers>
         </AuthProvider>
+        <Script
+          src="https://accounts.google.com/gsi/client"
+          strategy="lazyOnload"
+        />
+        <Script
+          src="https://mercury.phonepe.com/web/bundle/checkout.js"
+          strategy="lazyOnload"
+        />
       </body>
-      <script src="https://accounts.google.com/gsi/client" async defer></script>
-      <script src="https://mercury.phonepe.com/web/bundle/checkout.js"></script>
     </html>
   );
 }

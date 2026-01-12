@@ -16,6 +16,9 @@ import {
   ChevronRight,
   Printer,
   Share2,
+  XCircle,
+  Clock,
+  AlertCircle,
 } from "lucide-react";
 
 export default function BookingDetailsPage() {
@@ -67,20 +70,70 @@ export default function BookingDetailsPage() {
     createdAt,
   } = booking;
 
+  const statusConfig = {
+    CONFIRMED: {
+      label: "Booking Confirmed",
+      bgClass: "bg-green-600",
+      icon: CheckCircle,
+      iconColor: "text-green-200",
+      subText: "text-green-100",
+      pillClass: "bg-green-700/50",
+    },
+    PENDING_PAYMENT: {
+      label: "Payment Pending",
+      bgClass: "bg-orange-500",
+      icon: Clock,
+      iconColor: "text-orange-100",
+      subText: "text-orange-50",
+      pillClass: "bg-orange-600/50",
+    },
+    PAYMENT_FAILED: {
+      label: "Payment Failed",
+      bgClass: "bg-red-600",
+      icon: XCircle,
+      iconColor: "text-red-200",
+      subText: "text-red-100",
+      pillClass: "bg-red-700/50",
+    },
+    CANCELLED: {
+      label: "Booking Cancelled",
+      bgClass: "bg-gray-600",
+      icon: XCircle,
+      iconColor: "text-gray-300",
+      subText: "text-gray-200",
+      pillClass: "bg-gray-700/50",
+    },
+    EXPIRED: {
+      label: "Booking Expired",
+      bgClass: "bg-gray-500",
+      icon: AlertCircle,
+      iconColor: "text-gray-300",
+      subText: "text-gray-200",
+      pillClass: "bg-gray-600/50",
+    },
+  };
+
+  const currentStatus = statusConfig[status] || statusConfig.EXPIRED;
+  const StatusIcon = currentStatus.icon;
+
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <main className="max-w-3xl mx-auto px-4 py-8">
-        {/* Success Banner */}
-        <div className="bg-green-600 text-white rounded-2xl p-6 shadow-lg mb-6 relative overflow-visible">
+        {/* Dynamic Status Banner */}
+        <div
+          className={`${currentStatus.bgClass} text-white rounded-2xl p-6 shadow-lg mb-6 relative overflow-visible transition-colors duration-300`}
+        >
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <CheckCircle className="text-green-200" size={24} />
-                <h1 className="text-2xl font-bold">Booking Confirmed</h1>
+                <StatusIcon className={currentStatus.iconColor} size={24} />
+                <h1 className="text-2xl font-bold">{currentStatus.label}</h1>
               </div>
-              <p className="text-green-100">
+              <p className={currentStatus.subText}>
                 Your booking ID is{" "}
-                <span className="font-mono font-bold bg-green-700/50 px-2 py-0.5 rounded">
+                <span
+                  className={`font-mono font-bold px-2 py-0.5 rounded ${currentStatus.pillClass}`}
+                >
                   {bookingCode}
                 </span>
               </p>
@@ -107,7 +160,7 @@ export default function BookingDetailsPage() {
                 </button>
               </div>
               <div className="text-right">
-                <p className="text-sm text-green-200">Booked on</p>
+                <p className={`text-sm ${currentStatus.subText}`}>Booked on</p>
                 <p className="font-medium">
                   {format(new Date(createdAt), "dd MMM yyyy, hh:mm a")}
                 </p>
