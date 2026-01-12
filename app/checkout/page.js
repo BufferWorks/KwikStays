@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 import BookingSummary from "./components/BookingSummary";
 import GuestDetailsForm from "./components/GuestDetailsForm";
@@ -13,8 +14,18 @@ import { ChevronLeft, Lock } from "lucide-react";
 export default function CheckoutPage() {
   const router = useRouter();
   const [payload, setPayload] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // 1. Fetch User
+    axios.get("/api/auth/me").then((res) => {
+      if (res.data?.user) {
+        setUser(res.data.user);
+      }
+    });
+
+    // 2. Load Payload
     const stored = sessionStorage.getItem("checkout_payload");
 
     if (!stored) {
@@ -53,13 +64,51 @@ export default function CheckoutPage() {
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-4">
           <BookingSummary payload={payload} />
-          <GuestDetailsForm initialValues={payload.guestDetails} />
+          <GuestDetailsForm
+            initialValues={payload.guestDetails}
+            onChange={(newDetails) => {
+              setPayload((prev) => ({ ...prev, guestDetails: newDetails }));
+            }}
+          />
           <Policies />
         </div>
 
         {/* RIGHT */}
         <div className="lg:col-span-1">
-          <PriceBreakdown pricing={payload.pricing} />
+          <PriceBreakdown
+            pricing={payload.pricing}
+            loading={loading}
+            onPay={async () => {
+              setLoading(true);
+              const bookingPayload = {
+                hotelId: payload.hotel?.id,
+                roomTypeSlug: payload.roomType?.slug,
+                stay: payload.stay,
+                rooms: payload.rooms,
+                pricingSnapshot: payload.pricing,
+                guestDetails: payload.guestDetails,
+                userId: user?._id,
+              };
+
+              console.log("Initiating Booking with Payload:", bookingPayload);
+
+              try {
+                const res = await axios.post(
+                  "/api/bookings/initiate",
+                  bookingPayload
+                );
+                console.log("Booking API Response:", res.data);
+                const tokenUrl = res.data.redirectUrl;
+                window.PhonePeCheckout.transact({ tokenUrl });
+              } catch (error) {
+                console.error(
+                  "Booking API Error:",
+                  error.response?.data || error.message
+                );
+                setLoading(false); // Reset only on error, otherwise we navigate
+              }
+            }}
+          />
         </div>
       </div>
     </div>

@@ -1,5 +1,14 @@
-export default function GuestDetailsForm({ initialValues }) {
+export default function GuestDetailsForm({ initialValues, onChange }) {
     const { fullName = "", mobile = "", email = "" } = initialValues || {};
+
+    const handleChange = (field, value) => {
+        if (onChange) {
+            onChange({
+                ...initialValues,
+                [field]: value
+            });
+        }
+    };
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
@@ -15,6 +24,7 @@ export default function GuestDetailsForm({ initialValues }) {
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder:text-gray-400"
                         placeholder="John Doe"
                         defaultValue={fullName}
+                        onChange={(e) => handleChange("fullName", e.target.value)}
                     />
                 </div>
 
@@ -29,6 +39,7 @@ export default function GuestDetailsForm({ initialValues }) {
                             className="flex-1 min-w-0 block w-full px-3 py-2 bg-white border border-gray-300 rounded-r-lg text-gray-900 text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder:text-gray-400"
                             placeholder="98765 43210"
                             defaultValue={mobile}
+                            onChange={(e) => handleChange("mobile", e.target.value)}
                         />
                     </div>
                 </div>
@@ -40,6 +51,7 @@ export default function GuestDetailsForm({ initialValues }) {
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder:text-gray-400"
                         placeholder="john.doe@example.com"
                         defaultValue={email}
+                        onChange={(e) => handleChange("email", e.target.value)}
                     />
                     <p className="text-[10px] text-gray-500">Your booking confirmation will be sent here.</p>
                 </div>

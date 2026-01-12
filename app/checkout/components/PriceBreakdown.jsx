@@ -1,6 +1,6 @@
 import { ShieldCheck, Zap } from "lucide-react";
 
-export default function PriceBreakdown({ pricing }) {
+export default function PriceBreakdown({ pricing, onPay, loading }) {
     // Default values to prevent crashes if pricing data is missing
     const safePricing = pricing || {
         basePriceTotal: 0,
@@ -40,8 +40,22 @@ export default function PriceBreakdown({ pricing }) {
                 <p className="text-[10px] text-gray-500 text-right">Includes all taxes</p>
             </div>
 
-            <button className="mt-4 w-full py-3 rounded-xl font-bold text-base bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 group">
-                <span>Pay ₹{safePricing.totalPrice.toLocaleString()}</span>
+            <button
+                onClick={onPay}
+                disabled={loading}
+                className={`mt-4 w-full py-3 rounded-xl font-bold text-base text-white shadow-lg transition-all flex items-center justify-center gap-2 group ${loading
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-red-500 hover:bg-red-600 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]"
+                    }`}
+            >
+                {loading ? (
+                    <>
+                        <Zap className="animate-spin" size={18} />
+                        <span>Processing...</span>
+                    </>
+                ) : (
+                    <span>Pay ₹{safePricing.totalPrice.toLocaleString()}</span>
+                )}
             </button>
 
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">

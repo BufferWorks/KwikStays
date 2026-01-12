@@ -10,13 +10,16 @@
   },
   "dependencies": {
     "@react-oauth/google": "^0.13.4",
+    "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "cookie": "^1.1.1",
+    "date-fns": "^4.1.0",
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.553.0",
     "mongoose": "^9.0.2",
     "next": "^16.1.1",
+    "pg-sdk-node": "https://phonepe.mycloudrepo.io/public/repositories/phonepe-pg-sdk-node/releases/v2/phonepe-pg-sdk-node-2.0.3.tgz",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },

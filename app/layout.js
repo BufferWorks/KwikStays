@@ -33,6 +33,7 @@ export default function RootLayout({ children }) {
         </AuthProvider>
       </body>
       <script src="https://accounts.google.com/gsi/client" async defer></script>
+      <script src="https://mercury.phonepe.com/web/bundle/checkout.js"></script>
     </html>
   );
 }
