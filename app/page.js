@@ -81,58 +81,6 @@ const hotelData = [
   },
 ];
 
-const cityData = [
-  {
-    name: "Goa",
-    image:
-      "https://hblimg.mmtcdn.com/content/hubble/img/goakolkatadestimages/mmt/activities/m_Goa_3_l_666_1000.jpg",
-  },
-  {
-    name: "Mathura",
-    image: "https://skysafar.in/wp-content/uploads/2024/07/Mathura.png",
-  },
-  {
-    name: "Agra",
-    image:
-      "https://static.wixstatic.com/media/055605_65e20a7fcbc54e2e8720adfc2544c35e~mv2.jpg/v1/fill/w_801,h_634,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/taj_new_contant_edited.jpg",
-  },
-  {
-    name: "Delhi",
-    image:
-      "https://cdn.britannica.com/37/189837-050-F0AF383E/New-Delhi-India-War-Memorial-arch-Sir.jpg",
-  },
-  {
-    name: "Bangalore",
-    image:
-      "https://as2.ftcdn.net/v2/jpg/05/57/79/11/1000_F_557791137_tpPXXT6YxaJPKcYwPn1ygvgRdxdCjI8f.jpg",
-  },
-  {
-    name: "Jaipur",
-    image:
-      "https://www.worldtribune.org/wp-content/uploads/sites/2/2024/01/GettyImages-1191232894.jpg",
-  },
-  {
-    name: "Manali",
-    image:
-      "https://nomllers.com/wp-content/uploads/2025/04/conikal-9AdFb7fsYI-unsplash-scaled.webp",
-  },
-  {
-    name: "Dwarka",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/0/0c/Dwarakadheesh_Temple%2C_2014.jpg",
-  },
-  {
-    name: "Badrinath",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTv-ErnCX73kmG7RstUWVF5CZv8aIfNsOEy1w&s",
-  },
-  {
-    name: "Gurgaon",
-    image:
-      "https://img.cofynd.com/images/latest_images_2024/25f22867daab054386b73c9ac654a8652bbba4fc.webp",
-  },
-];
-
 // 1. Navigation Bar (Redesigned)
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -278,6 +226,27 @@ const Hero = () => {
 };
 
 const CityDestinations = () => {
+  const [cities, setCities] = useState([]);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const res = await fetch("/api/home-cities");
+        if (res.ok) {
+          const data = await res.json();
+          const sortedCities = data
+            .filter((item) => item.isActive)
+            .sort((a, b) => a.order - b.order)
+            .slice(0, 10);
+          setCities(sortedCities);
+        }
+      } catch (error) {
+        console.error("Failed to fetch cities:", error);
+      }
+    };
+    fetchCities();
+  }, []);
+
   return (
     <section className="py-12 bg-gray-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -302,47 +271,24 @@ const CityDestinations = () => {
         </div>
 
         <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto pb-4 md:pb-0 snap-x md:snap-none">
-          {cityData.slice(0, 5).map((city) => (
+          {cities.map((city) => (
             <a
-              key={city.name}
-              href={`/hotels/${city.name.toLowerCase()}`}
+              key={city._id}
+              href={`/hotels/${city.city?.slug || ""}`}
               className="min-w-[160px] md:min-w-0 snap-start group relative h-40 md:h-52 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 block"
             >
               <img
-                src={city.image}
-                alt={city.name}
+                src={city.heroImage}
+                alt={city.displayName}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
               <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform">
                 <h3 className="text-lg font-bold text-white mb-0.5">
-                  {city.name}
+                  {city.displayName}
                 </h3>
                 <p className="text-xs text-gray-300 font-medium">
                   Starting from ₹999
-                </p>
-              </div>
-            </a>
-          ))}
-
-          {cityData.slice(5, 10).map((city) => (
-            <a
-              key={city.name}
-              href={`/hotels/${city.name.toLowerCase()}`}
-              className="min-w-[160px] md:min-w-0 snap-start group relative h-40 md:h-52 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 block" // Hidden on mobile to save space
-            >
-              <img
-                src={city.image}
-                alt={city.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-              <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-1 group-hover:translate-y-0 transition-transform">
-                <h3 className="text-lg font-bold text-white mb-0.5">
-                  {city.name}
-                </h3>
-                <p className="text-xs text-gray-300 font-medium">
-                  Starting from ₹899
                 </p>
               </div>
             </a>
