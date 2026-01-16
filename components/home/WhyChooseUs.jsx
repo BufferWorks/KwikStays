@@ -30,7 +30,7 @@ const WhyChooseUs = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                        Why Book With KwikStayz?
+                        Why Book With KwikStays?
                     </h2>
                     <p className="text-gray-500">
                         We ensure every stay is memorable, safe, and comfortable.

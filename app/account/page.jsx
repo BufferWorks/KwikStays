@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/home/Navbar";
 import ProfileEdit from "@/components/account/ProfileEdit";
-import { Loader2, Briefcase, ChevronRight, ArrowLeft } from "lucide-react";
+import { Loader2, Briefcase, ChevronRight, ArrowLeft, Heart } from "lucide-react";
 
 export default function AccountPage() {
     const [user, setUser] = useState(null);
@@ -80,7 +80,7 @@ export default function AccountPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
                     {/* LEFT COLUMN - Bookings CTA */}
-                    <div className="lg:col-span-2">
+                    <div className="lg:col-span-2 space-y-4">
                         <div
                             onClick={() => router.push("/my-bookings")}
                             className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group"
@@ -95,6 +95,25 @@ export default function AccountPage() {
                                 </div>
                             </div>
                             <div className="flex items-center text-gray-400 group-hover:text-blue-600 transition-colors">
+                                <span className="text-sm font-medium mr-2 hidden sm:block">View All</span>
+                                <ChevronRight size={20} />
+                            </div>
+                        </div>
+
+                        <div
+                            onClick={() => router.push("/wishlist")}
+                            className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-all group"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-600">
+                                    <Heart size={20} />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-bold text-gray-900">My Wishlist</h2>
+                                    <p className="text-sm text-gray-500">View your saved properties</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center text-gray-400 group-hover:text-red-600 transition-colors">
                                 <span className="text-sm font-medium mr-2 hidden sm:block">View All</span>
                                 <ChevronRight size={20} />
                             </div>

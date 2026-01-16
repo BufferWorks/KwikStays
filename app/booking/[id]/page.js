@@ -154,7 +154,7 @@ export default function BookingDetailsPage() {
 
           <div className="text-center">
             <p className="text-sm font-medium opacity-95 tracking-wide">
-              KwikStayz Welcomes you
+              KwikStays Welcomes you
             </p>
           </div>
 
@@ -344,7 +344,7 @@ export default function BookingDetailsPage() {
         {statusConfig.showFooter && (
           <div className="mt-12 text-center border-t border-gray-100 pt-6">
             <p className="font-bold text-gray-900 text-sm">
-              Was the check-in at KwikStayz smooth for you?
+              Was the check-in at KwikStays smooth for you?
             </p>
           </div>
         )}

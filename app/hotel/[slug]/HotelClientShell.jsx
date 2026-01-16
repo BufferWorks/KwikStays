@@ -26,7 +26,7 @@ import MobileStickyBookingBar from "@/components/hotel/MobileStickyBookingBar";
 import SimilarHotels from "@/components/hotel/SimilarHotels";
 import AboutSection from "@/components/hotel/AboutSection";
 
-export default function HotelClientShell({ hotel }) {
+export default function HotelClientShell({ hotel, similarHotels = [] }) {
   const router = useRouter();
   const pricingRef = useRef(null);
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
@@ -202,7 +202,7 @@ export default function HotelClientShell({ hotel }) {
               pricingResult={pricingResult}
               onBookNow={handleBookNow}
             />
-            <SimilarHotels hotels={hotel.similarHotels || []} />
+            <SimilarHotels hotels={similarHotels} />
           </div>
           <BookingCard
             hotel={{

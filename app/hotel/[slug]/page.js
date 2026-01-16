@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import HotelClientShell from "./HotelClientShell";
-import { fetchHotelBySlug } from "@/lib/hotel";
+import { fetchHotelBySlug, fetchSimilarHotels } from "@/lib/hotel";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -191,6 +191,15 @@ export default async function HotelDetailsPage({ params }) {
         }
       : null;
 
+  // Fetch similar hotels
+  const similarHotels = await fetchSimilarHotels({
+    cityId: hotel.city._id,
+    price: hotel.priceStartingFrom,
+    excludeId: hotel._id,
+    categories: hotel.categories,
+    localityId: hotel.locality._id,
+  });
+
   return (
     <>
       {/* Breadcrumb Schema */}
@@ -219,7 +228,7 @@ export default async function HotelDetailsPage({ params }) {
         />
       )}
 
-      <HotelClientShell hotel={hotel} />
+      <HotelClientShell hotel={hotel} similarHotels={similarHotels} />
     </>
   );
 }

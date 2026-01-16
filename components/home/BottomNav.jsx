@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Home, Search, Briefcase, BadgePercent, User } from "lucide-react";
+import { Home, Search, Briefcase, Heart, User } from "lucide-react";
 
 const BottomNav = () => {
     const [activeTab, setActiveTab] = useState("Home");
@@ -9,7 +9,7 @@ const BottomNav = () => {
         { name: "Home", icon: Home, href: "/" },
         { name: "Search", icon: Search, href: "/search-properties" },
         { name: "Bookings", icon: Briefcase, href: "/my-bookings" },
-        { name: "Offers", icon: BadgePercent, href: "/offers" },
+        { name: "Wishlist", icon: Heart, href: "/wishlist" },
         { name: "Account", icon: User, href: "/account" },
     ];
 

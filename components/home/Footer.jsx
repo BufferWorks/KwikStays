@@ -1,35 +1,36 @@
 import React from "react";
+import Link from "next/link";
 
 const Footer = () => {
     return (
         <footer className="hidden md:block bg-[#242a3a] text-gray-300 py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div>
-                    <h3 className="text-white font-semibold mb-4">Destinations</h3>
+
                     <ul>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
+                            <a href={`${process.env.NEXT_PUBLIC_BASE_URL}/hotels/mathura`} className="hover:text-white">
                                 Mathura
                             </a>
                         </li>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
+                            <a href={`${process.env.NEXT_PUBLIC_BASE_URL}/hotels/agra`} className="hover:text-white">
                                 Agra
                             </a>
                         </li>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
+                            <a href={`${process.env.NEXT_PUBLIC_BASE_URL}/hotels/goa`} className="hover:text-white">
                                 Goa
                             </a>
                         </li>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
-                                Rajasthan
+                            <a href={`${process.env.NEXT_PUBLIC_BASE_URL}/hotels/jaipur`} className="hover:text-white">
+                                Jaipur
                             </a>
                         </li>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
-                                Karnataka
+                            <a href={`${process.env.NEXT_PUBLIC_BASE_URL}/hotels/agra`} className="hover:text-white">
+                                agra
                             </a>
                         </li>
                     </ul>
@@ -38,23 +39,8 @@ const Footer = () => {
                     <h3 className="text-white font-semibold mb-4">Company</h3>
                     <ul>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
+                            <a href="/about" className="hover:text-white">
                                 About Us
-                            </a>
-                        </li>
-                        <li className="mt-2">
-                            <a href="#" className="hover:text-white">
-                                Careers
-                            </a>
-                        </li>
-                        <li className="mt-2">
-                            <a href="#" className="hover:text-white">
-                                Press
-                            </a>
-                        </li>
-                        <li className="mt-2">
-                            <a href="#" className="hover:text-white">
-                                Blog
                             </a>
                         </li>
                     </ul>
@@ -63,24 +49,24 @@ const Footer = () => {
                     <h3 className="text-white font-semibold mb-4">Support</h3>
                     <ul>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
+                            <Link href="/contact" className="hover:text-white">
                                 Contact Us
-                            </a>
+                            </Link>
                         </li>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
+                            <Link href="/faq" className="hover:text-white">
                                 FAQ
-                            </a>
+                            </Link>
                         </li>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
+                            <Link href="/privacy-policy" className="hover:text-white">
                                 Privacy Policy
-                            </a>
+                            </Link>
                         </li>
                         <li className="mt-2">
-                            <a href="#" className="hover:text-white">
+                            <Link href="/terms-of-service" className="hover:text-white">
                                 Terms of Service
-                            </a>
+                            </Link>
                         </li>
                     </ul>
                 </div>

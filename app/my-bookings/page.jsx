@@ -166,7 +166,7 @@ function EmptyState({ router }) {
             </div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">No bookings yet</h2>
             <p className="text-sm text-gray-500 mb-6">
-                Start your journey with KwikStayz today.
+                Start your journey with KwikStays today.
             </p>
             <button
                 onClick={() => router.push("/")}

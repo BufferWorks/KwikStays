@@ -1,5 +1,6 @@
 import React from "react";
 import { Check, User, Bed, CheckCircle2, Ban, Info } from "lucide-react";
+import { getAmenityIcon } from "@/components/hotel/amenityUtils";
 
 export default function RoomTypes({ roomTypes, selectedRoom, setSelectedRoom }) {
   return (
@@ -39,7 +40,7 @@ export default function RoomTypes({ roomTypes, selectedRoom, setSelectedRoom }) 
                       <span className="text-sm text-gray-400 line-through">₹{originalPrice.toLocaleString()}</span>
                       <span className="text-xs font-bold text-green-600">{Math.round(((originalPrice - room.basePrice) / originalPrice) * 100)}% off</span>
                     </div>
-                    <div className="text-[10px] text-gray-400">+ ₹{Math.round(room.basePrice * 0.12)} taxes & fees</div>
+                    <div className="text-[10px] text-gray-400">Inclusive of taxes & fees</div>
                   </div>
                 </div>
 
@@ -50,16 +51,26 @@ export default function RoomTypes({ roomTypes, selectedRoom, setSelectedRoom }) 
               </div>
 
               {/* Amenities & Refundable (Minimal) */}
-              <div className="mt-3 flex flex-wrap gap-1.5 mb-3">
+              <div className="mt-3 flex flex-col gap-1.5 mb-3">
                 {room.refundable && (
-                  <span className="text-[10px] font-medium text-green-700 bg-green-50 px-1.5 py-0.5 rounded flex items-center gap-1">
-                    <CheckCircle2 size={10} /> Free Cancellation
-                  </span>
+                  <div className="flex">
+                    <span className="text-[10px] font-medium text-green-700 bg-green-50 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <CheckCircle2 size={10} /> Free Cancellation
+                    </span>
+                  </div>
                 )}
-                {room.amenities.slice(0, 2).map(am => (
-                  <span key={am} className="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 truncate max-w-[100px]">{am}</span>
-                ))}
-                {room.amenities.length > 2 && <span className="text-[10px] text-gray-400">+{room.amenities.length - 2} more</span>}
+                <div className="flex flex-wrap gap-1.5">
+                  {room.amenities.slice(0, 2).map((am) => {
+                    const Icon = getAmenityIcon(am);
+                    return (
+                      <span key={am} className="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 truncate max-w-[100px] flex items-center gap-1">
+                        <Icon size={10} />
+                        {am}
+                      </span>
+                    );
+                  })}
+                  {room.amenities.length > 2 && <span className="text-[10px] text-gray-400">+{room.amenities.length - 2} more</span>}
+                </div>
               </div>
 
               {/* Button */}
@@ -144,12 +155,15 @@ export default function RoomTypes({ roomTypes, selectedRoom, setSelectedRoom }) 
 
                   {/* Amenities List */}
                   <div className="mt-2 space-y-1">
-                    {room.amenities.slice(0, 4).map((amenity, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                        <Check size={14} className="text-green-600 shrink-0" />
-                        <span>{amenity}</span>
-                      </div>
-                    ))}
+                    {room.amenities.slice(0, 4).map((amenity, idx) => {
+                      const Icon = getAmenityIcon(amenity);
+                      return (
+                        <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                          <Icon size={14} className="text-green-600 shrink-0" />
+                          <span>{amenity}</span>
+                        </div>
+                      );
+                    })}
                     {room.amenities.length > 4 && (
                       <div className="text-xs text-blue-600 font-medium pl-6 pt-1">
                         +{room.amenities.length - 4} more amenities

@@ -40,7 +40,7 @@ export default function PoliciesSection({ policies }) {
         </li>
         {policies?.security && <li>{policies.security}</li>}
         <li>
-          This hotel is serviced under the trade name of KwikStayz as per quality standards.
+          This hotel is serviced under the trade name of KwikStays as per quality standards.
         </li>
       </ul>
     </section>

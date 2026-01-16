@@ -47,7 +47,7 @@ export default async function SearchPage({ searchParams }) {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-lg lg:text-3xl font-bold text-gray-900 mb-1">
-              {hotels.length} {category?.name || ""} Stayz in {headingLocation}
+              {hotels.length} {category?.name || ""} Stays in {headingLocation}
             </h1>
           </div>
 

@@ -4,7 +4,7 @@ import { getAmenityIcon } from "@/components/hotel/amenityUtils"; // Import util
 
 const HotelCard = ({ hotel }) => {
     // Determine location string safely
-    const locationName = hotel.city?.name || hotel.locality?.name || "KwikStayz";
+    const locationName = hotel.city?.name || hotel.locality?.name || "KwikStays";
 
     return (
         <a

@@ -171,7 +171,7 @@ export default function MobilePricingDetails({
       <div className="mb-6">
         <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-center gap-2 text-blue-700">
           <BadgePercent size={18} />
-          <span className="text-sm font-semibold">Coupon applied! You saved more with KwikStayz.</span>
+          <span className="text-sm font-semibold">Coupon applied! You saved more with KwikStays.</span>
         </div>
       </div>
 

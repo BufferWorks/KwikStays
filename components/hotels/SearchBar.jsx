@@ -130,7 +130,7 @@ export default function SearchBar({ city }) {
             {/* 1. BRANDING (Left) */}
             <div className="flex-shrink-0 cursor-pointer" onClick={() => router.push('/')}>
               <span className="text-3xl font-brand text-gray-900 tracking-wide">
-                Kwik <span className="text-[#f8a11e]">Stayz</span>
+                Kwik <span className="text-[#f8a11e]">Stays</span>
               </span>
             </div>
 

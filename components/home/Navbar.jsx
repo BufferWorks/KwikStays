@@ -21,7 +21,6 @@ const Navbar = () => {
 
     const navLinks = [
         { name: "Home", href: "/" },
-        { name: "Destinations", href: "/destinations" },
         { name: "About Us", href: "/about" },
         { name: "Contact", href: "/contact" },
     ];
@@ -32,8 +31,8 @@ const Navbar = () => {
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? "bg-white shadow-md py-2"
-                    : "bg-white/95 backdrop-blur-sm py-4"
+                ? "bg-white shadow-md py-2"
+                : "bg-white/95 backdrop-blur-sm py-4"
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 flex items-center justify-center md:justify-between h-16">
@@ -42,7 +41,7 @@ const Navbar = () => {
                     className="cursor-pointer text-3xl font-brand"
                     onClick={() => router.push("/")}
                 >
-                    Kwik <span className="text-[#f8a11e]">Stayz</span>
+                    Kwik <span className="text-[#f8a11e]">Stays</span>
                 </div>
                 {/* Desktop Nav Links */}{" "}
                 <div className="hidden md:flex items-center space-x-1 bg-gray-50/50 p-1.5 rounded-full border border-gray-100">

@@ -18,7 +18,7 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata = {
-  title: "Kwik-stayz",
+  title: "Kwik-stays",
   description: "Your journey begins here",
 };
 
