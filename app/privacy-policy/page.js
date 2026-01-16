@@ -104,30 +104,27 @@ export default function PrivacyPolicyPage() {
       <footer className="bg-gray-900 text-gray-400 py-12 text-center border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 mb-8">
           <div className="flex flex-wrap justify-center gap-6 md:gap-8 text-sm md:text-base">
-            <Link href="/about" className="hover:text-white transition-colors">
+            <a href="/about" className="hover:text-white transition-colors">
               About Us
-            </Link>
-            <Link
-              href="/contact"
-              className="hover:text-white transition-colors"
-            >
+            </a>
+            <a href="/contact" className="hover:text-white transition-colors">
               Contact Us
-            </Link>
-            <Link
+            </a>
+            <a
               href="/terms-of-service"
               className="hover:text-white transition-colors"
             >
               Terms of Service
-            </Link>
-            <Link
+            </a>
+            <a
               href="/privacy-policy"
               className="hover:text-white transition-colors"
             >
               Privacy Policy
-            </Link>
-            <Link href="/faq" className="hover:text-white transition-colors">
+            </a>
+            <a href="/faq" className="hover:text-white transition-colors">
               FAQ
-            </Link>
+            </a>
           </div>
         </div>
         <p>&copy; {new Date().getFullYear()} KwikStays. All rights reserved.</p>
