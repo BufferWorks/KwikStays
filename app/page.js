@@ -13,7 +13,6 @@ import { fetchHomeHotels } from "@/lib/Home";
 export const dynamic = "force-dynamic"; // Ensure fresh data if needed, or remove for static generation
 
 export default async function App() {
-  console.log("HOME PAGE GOOGLE CLIENT ID:", process.env.GOOGLE_CLIENT_ID);
   // Server-side data fetching
   const data = await fetchHomeCities();
   let cities = [];
