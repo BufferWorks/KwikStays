@@ -2,6 +2,14 @@
 
 **KwikStays** is a modern, responsive hotel booking web application designed to help users discover and book stays in top destinations across India. Built with **Next.js** and **Tailwind CSS**, it offers a seamless user experience for finding the perfect getaway.
 
+## Ownership
+
+Maintained by **BufferWorks**
+
+## Lead Engineer
+
+**Suryansh Sharma**
+
 ## ✨ Key Features
 
 - **Search & Discovery**: Easily search for hotels by destination, check-in/out dates, and number of guests.
