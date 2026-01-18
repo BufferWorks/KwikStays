@@ -3,7 +3,48 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Heart, MapPin, Wifi, Star, ChevronLeft } from "lucide-react";
+import { Loader2, Heart, MapPin, Wifi, Star, ChevronLeft, Home, Search, Briefcase, User } from "lucide-react";
+
+function BottomNav() {
+    const [activeTab, setActiveTab] = useState("Wishlist");
+    const navItems = [
+        { name: "Home", icon: Home, href: "/" },
+        { name: "Search", icon: Search, href: "/search-properties" },
+        { name: "Bookings", icon: Briefcase, href: "/my-bookings" },
+        { name: "Wishlist", icon: Heart, href: "/wishlist" },
+        { name: "Account", icon: User, href: "/account" },
+    ];
+
+    return (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white shadow-[0_-2px_6px_rgba(0,0,0,0.06)] border-t border-gray-200">
+            <div className="flex justify-around h-16">
+                {navItems.map((item) => (
+                    <a
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setActiveTab(item.name)}
+                        className="flex flex-col items-center justify-center w-full"
+                    >
+                        <item.icon
+                            size={24}
+                            className={`transition-colors ${activeTab === item.name
+                                ? "text-red-500" // Active color from OYO image
+                                : "text-gray-500"
+                                }`}
+                        />
+                        <span
+                            className={`text-xs font-medium transition-colors ${activeTab === item.name ? "text-red-500" : "text-gray-600"
+                                }`}
+                        >
+                            {item.name}
+                        </span>
+                    </a>
+                ))}
+            </div>
+        </nav>
+    );
+}
+
 
 export default function WishlistPage() {
     const router = useRouter();
@@ -39,28 +80,6 @@ export default function WishlistPage() {
         fetchWishlist();
     }, [router]);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-                <p className="text-gray-600 mb-4">{error}</p>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="text-red-500 font-bold hover:underline"
-                >
-                    Try Again
-                </button>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-gray-50 pb-24 md:pb-12">
             {/* Header */}
@@ -81,7 +100,21 @@ export default function WishlistPage() {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 py-6">
-                {wishlist.length === 0 ? (
+                {loading ? (
+                    <div className="flex items-center justify-center py-40">
+                        <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
+                    </div>
+                ) : error ? (
+                    <div className="flex flex-col items-center justify-center py-20 px-4">
+                        <p className="text-gray-600 mb-4">{error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="text-red-500 font-bold hover:underline"
+                        >
+                            Try Again
+                        </button>
+                    </div>
+                ) : wishlist.length === 0 ? (
                     <div className="text-center py-20">
                         <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                             <Heart className="w-8 h-8 text-red-500" />
@@ -165,6 +198,7 @@ export default function WishlistPage() {
                     </div>
                 )}
             </div>
+            <BottomNav />
         </div>
     );
 }

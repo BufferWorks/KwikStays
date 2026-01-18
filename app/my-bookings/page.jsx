@@ -16,7 +16,7 @@ import {
     Home,
     Search,
     Briefcase,
-    BadgePercent,
+    Heart,
     User,
 } from "lucide-react";
 
@@ -122,9 +122,9 @@ function BottomNav() {
     const [activeTab, setActiveTab] = useState("Bookings");
     const navItems = [
         { name: "Home", icon: Home, href: "/" },
-        { name: "Search", icon: Search, href: "#" },
+        { name: "Search", icon: Search, href: "/search-properties" },
         { name: "Bookings", icon: Briefcase, href: "/my-bookings" },
-        { name: "Offers", icon: BadgePercent, href: "/offers" },
+        { name: "Wishlist", icon: Heart, href: "/wishlist" },
         { name: "Account", icon: User, href: "/account" },
     ];
 
