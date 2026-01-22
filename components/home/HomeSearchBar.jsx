@@ -94,7 +94,7 @@ const HomeSearchBar = forwardRef((props, ref) => {
             {/* MOBILE UI SECTION (Matches app/page.js) */}
             {/* ========================================= */}
             <div ref={ref} className="md:hidden flex flex-col gap-6 pb-6 w-full">
-                <div className="px-5 mt-20">
+                <div className="px-5 mt-28">
                     <h1 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                         Find hotels at best prices
                     </h1>
@@ -232,9 +232,9 @@ const HomeSearchBar = forwardRef((props, ref) => {
             {/* ========================================= */}
             {/* DESKTOP UI SECTION (Matches app/page.js) */}
             {/* ========================================= */}
-            <div className="hidden md:block relative -mt-16 z-20 w-full">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-lg shadow-2xl p-6 md:p-8">
+            <div className="hidden md:block relative z-20 w-full">
+                <div className="w-full">
+                    <div className="bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl shadow-2xl p-6 md:p-8 ring-1 ring-black/5">
                         <div className="grid grid-cols-1 md:grid-cols-10 gap-4 items-end">
                             {/* Location */}
                             <div className="relative md:col-span-3">

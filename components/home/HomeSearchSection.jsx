@@ -8,21 +8,19 @@ import { Search } from "lucide-react";
 const StickySearchHeader = ({ isVisible }) => {
     return (
         <div
-            className={`md:hidden fixed top-2 left-2 right-2 z-40 transition-all duration-300 ease-in-out ${isVisible
-                    ? "translate-y-0 opacity-100"
-                    : "-translate-y-12 opacity-0 pointer-events-none"
+            className={`md:hidden fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out ${isVisible
+                ? "translate-y-0 opacity-100"
+                : "-translate-y-full opacity-0 pointer-events-none"
                 }`}
         >
-            {/* Added shadow-xl and rounded-full */}
-            <div className="p-2 bg-white shadow-xl rounded-full">
+            <div className="px-4 py-3 bg-white shadow-lg border-b border-gray-100">
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-500" />
+                        <Search className="h-4 w-4 text-orange-500" />
                     </div>
                     <input
                         type="text"
-                        // MODIFIED: py-2.5 and rounded-full
-                        className="w-full pl-11 pr-4 py-2.5 bg-gray-100 rounded-full border-none focus:ring-2 focus:ring-[#f8a11e]"
+                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500/20 text-sm font-medium text-gray-800 placeholder:text-gray-400"
                         placeholder="Search for city, location or hotel"
                     />
                 </div>
@@ -41,8 +39,8 @@ export default function HomeSearchSection({ children }) {
 
         const handleScroll = () => {
             const searchBarTop = searchBarEl.offsetTop;
-
-            if (window.scrollY > searchBarTop) {
+            // logic for sticky header on mobile
+            if (window.scrollY > searchBarTop + 100) {
                 setIsStickySearchVisible(true);
             } else {
                 setIsStickySearchVisible(false);
@@ -51,14 +49,21 @@ export default function HomeSearchSection({ children }) {
 
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
-    }, []); // Runs once on mount, ref will be populated
+    }, []);
 
     return (
         <>
             <StickySearchHeader isVisible={isStickySearchVisible} />
-            <div className="flex flex-col md:flex-col-reverse pt-5">
-                <SearchBar ref={searchBarRef} />
+            <div className="flex flex-col relative">
+                {/* Hero is passed as Children */}
                 {children}
+
+                {/* Overlapping Search Bar Container */}
+                <div className="relative z-30 px-4 -mt-8 md:-mt-24 lg:-mt-28 w-full max-w-6xl mx-auto">
+                    <div className="animate-fade-in-up delay-100">
+                        <SearchBar ref={searchBarRef} />
+                    </div>
+                </div>
             </div>
         </>
     );
