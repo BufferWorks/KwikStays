@@ -58,7 +58,7 @@ export default function WishlistPage() {
                 const res = await fetch("/api/user/wishlist");
 
                 if (res.status === 401) {
-                    router.push("/api/auth/login");
+                    router.push("/auth/login");
                     return;
                 }
 
