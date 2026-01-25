@@ -25,7 +25,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata = {
-  title: "Kwik-stays",
+  title: "KwikStays",
   description: "Your journey begins here",
 };
 

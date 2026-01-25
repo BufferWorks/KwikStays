@@ -32,7 +32,7 @@ Follow these steps to run the project locally:
 
     ```bash
     git clone <repository-url>
-    cd kwik-stays
+    cd KwikStays
     ```
 
 2.  **Install dependencies:**
