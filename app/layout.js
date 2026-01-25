@@ -1,7 +1,8 @@
-import { Inter, Great_Vibes } from "next/font/google";
+import { Inter, Great_Vibes, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import Providers from "./providers";
+import SmoothScroll from "@/components/SmoothScroll";
 import { AuthProvider } from "@/context/AuthContext";
 
 // 1. Configure the Inter font (Minimal/Standard)
@@ -17,6 +18,12 @@ const greatVibes = Great_Vibes({
   variable: "--font-great-vibes",
 });
 
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"], // Varied weights for headings
+  variable: "--font-playfair",
+});
+
 export const metadata = {
   title: "Kwik-stays",
   description: "Your journey begins here",
@@ -27,8 +34,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       {/* 2. Apply the variable AND the 'font-sans' class */}
       <body
-        className={`${inter.variable} ${greatVibes.variable} font-sans antialiased`}
+        className={`${inter.variable} ${greatVibes.variable} ${playfair.variable} font-sans antialiased`}
       >
+        <SmoothScroll />
         <AuthProvider>
           <Providers>{children}</Providers>
         </AuthProvider>

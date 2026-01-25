@@ -19,10 +19,19 @@ const Navbar = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
+            // Mobile: standard quick transition
+            // Desktop: wait for hero animation (approx 7 screens worth of scroll)
+            const threshold = window.innerWidth >= 768 ? window.innerHeight * 6.8 : 20;
+            setIsScrolled(window.scrollY > threshold);
         };
         window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
+        // Add resize listener to update threshold logic if window resizes
+        window.addEventListener("resize", handleScroll);
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("resize", handleScroll);
+        }
     }, []);
 
     const navLinks = [
@@ -76,7 +85,7 @@ const Navbar = () => {
                 </div> */}
 
                 <div className="flex-shrink-0 cursor-pointer" onClick={() => router.push('/')}>
-                    <span className="text-3xl font-brand text-gray-900 tracking-wide">
+                    <span className={`text-3xl font-brand tracking-wide transition-colors duration-300 ${textColorClass}`}>
                         Kwik <span className="text-[#f8a11e]">Stays</span>
                     </span>
                 </div>
