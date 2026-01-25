@@ -16,12 +16,14 @@ const HeroImageSequence = ({ children }) => {
             const loadedImages = [];
             let loadedCount = 0;
 
+            const imagePromises = [];
+
             for (let i = 1; i <= frameCount; i++) {
                 const img = new Image();
                 const frameNumber = i.toString().padStart(3, "0");
                 img.src = `/herosectionframes/ezgif-frame-${frameNumber}.webp`;
 
-                await new Promise((resolve) => {
+                const p = new Promise((resolve) => {
                     img.onload = () => {
                         loadedCount++;
                         setLoadProgress(Math.round((loadedCount / frameCount) * 100));
@@ -29,8 +31,12 @@ const HeroImageSequence = ({ children }) => {
                     };
                     img.onerror = () => resolve();
                 });
+
+                imagePromises.push(p);
                 loadedImages.push(img);
             }
+
+            await Promise.all(imagePromises);
             setImages(loadedImages);
             setIsLoaded(true);
         };
