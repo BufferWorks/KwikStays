@@ -11,7 +11,7 @@ const Hero = () => {
                 <div className="relative z-10 h-full flex flex-col justify-center items-center text-center max-w-6xl mx-auto px-4 -mt-10 pointer-events-auto">
 
                     <h1 className="pt-10 text-6xl md:text-7xl lg:text-9xl font-extrabold text-white tracking-tight leading-none mb-8 drop-shadow-2xl font-[family-name:var(--font-playfair)]">
-                        Find You <br />
+                        Find Your <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f8a11e] via-[#ffc45e] to-[#ffffff] italic">
                             Perfect Escape
                         </span>
