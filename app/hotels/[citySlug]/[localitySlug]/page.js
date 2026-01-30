@@ -14,16 +14,12 @@ import { fetchLocalitiesByCity } from "@/lib/localities";
 import { generateFaqSchema } from "@/lib/seo/generateFaqSchema";
 
 export async function generateMetadata({ params }) {
-  const { citySlug, localitySlug } = await params;
-
+  const { citySlug, localitySlug } = params;
   const data = await fetchHotelsByLocality(citySlug, localitySlug);
 
-  if (!data) {
+  if (!data || data.hotels.length < 3) {
     return {
-      robots: {
-        index: false,
-        follow: false,
-      },
+      robots: { index: false, follow: true },
     };
   }
 
@@ -33,29 +29,15 @@ export async function generateMetadata({ params }) {
   return {
     title: `Hotels in ${localityName}, ${cityName} | Best Prices`,
     description: `Book hotels in ${localityName}, ${cityName}. Compare prices, amenities and reviews.`,
+
     alternates: {
       canonical: `${process.env.NEXT_PUBLIC_BASE_URL}/hotels/${citySlug}/${localitySlug}`,
     },
-    robots: {
-      index: true,
-      follow: true,
-    },
-    openGraph: {
-      title: `Hotels in ${localityName}, ${cityName} | Best Prices`,
-      description: `Book hotels in ${localityName}, ${cityName}. Compare prices, amenities and reviews.`,
-      type: "website",
-      url: `${process.env.NEXT_PUBLIC_BASE_URL}/hotels/${citySlug}/${localitySlug}`,
-    },
-    twitter: {
-      title: `Hotels in ${localityName}, ${cityName} | Best Prices`,
-      description: `Book hotels in ${localityName}, ${cityName}. Compare prices, amenities and reviews.`,
-      card: "summary_large_image",
-      images: [
-        {
-          url: "/default-hotel.jpg",
-          alt: `Hotels in ${localityName}, ${cityName}`,
-        },
-      ],
+
+    robots: { index: true, follow: true },
+
+    other: {
+      "last-modified": new Date().toISOString(),
     },
   };
 }

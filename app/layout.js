@@ -25,8 +25,16 @@ const playfair = Playfair_Display({
 });
 
 export const metadata = {
-  title: "KwikStays",
-  description: "Your journey begins here",
+  title: {
+    default: "KwikStays – Book Hotels at Best Prices",
+    template: "%s | KwikStays",
+  },
+  description:
+    "Book budget, premium, and business hotels across India with trusted reviews and best prices.",
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }) {

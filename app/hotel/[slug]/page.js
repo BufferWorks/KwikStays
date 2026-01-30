@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import HotelClientShell from "./HotelClientShell";
 import { fetchHotelBySlug, fetchSimilarHotels } from "@/lib/hotel";
 
+/* ---------------- SEO METADATA ---------------- */
+
 export async function generateMetadata({ params }) {
-  const { slug } = await params;
+  const { slug } = params;
 
   const hotel = await fetchHotelBySlug(slug);
 
@@ -20,7 +22,7 @@ export async function generateMetadata({ params }) {
 
   const description =
     hotel.seo?.description ||
-    `Book ${hotel.name} hotel in ${hotel.locality?.name}, ${hotel.city?.name}. Check photos, amenities, reviews and best prices.`;
+    `Book ${hotel.name} hotel in ${hotel.locality?.name}, ${hotel.city?.name}. Check photos, amenities, location and best prices.`;
 
   const url = `${process.env.NEXT_PUBLIC_BASE_URL}/hotel/${hotel.slug}`;
 
@@ -32,16 +34,25 @@ export async function generateMetadata({ params }) {
       canonical: url,
     },
 
+    robots: {
+      index: true,
+      follow: true,
+    },
+
+    other: {
+      "last-modified": hotel.updatedAt || new Date().toISOString(),
+    },
+
     openGraph: {
       title,
       description,
       url,
-      type: "website",
+      type: "hotel",
       images: hotel.heroImage
         ? [
             {
               url: hotel.heroImage,
-              alt: `${hotel.name} hotel in ${hotel.locality?.name}`,
+              alt: `${hotel.name} hotel in ${hotel.locality?.name}, ${hotel.city?.name}`,
             },
           ]
         : [],
@@ -56,14 +67,18 @@ export async function generateMetadata({ params }) {
   };
 }
 
+/* ---------------- PAGE ---------------- */
+
 export default async function HotelDetailsPage({ params }) {
-  const { slug } = await params;
+  const { slug } = params;
 
   const hotel = await fetchHotelBySlug(slug);
 
   if (!hotel || !hotel.isActive) {
     return notFound();
   }
+
+  /* ---------------- BREADCRUMB SCHEMA ---------------- */
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -96,11 +111,17 @@ export default async function HotelDetailsPage({ params }) {
     ],
   };
 
+  /* ---------------- HOTEL SCHEMA (SAFE VERSION) ---------------- */
+
   const hotelSchema = {
     "@context": "https://schema.org",
-    "@type": "LodgingBusiness",
+    "@type": "Hotel",
+    "@id": `${process.env.NEXT_PUBLIC_BASE_URL}/hotel/${hotel.slug}`,
 
     name: hotel.name,
+    url: `${process.env.NEXT_PUBLIC_BASE_URL}/hotel/${hotel.slug}`,
+
+    description: hotel.description,
 
     image: [
       ...(hotel.heroImage ? [hotel.heroImage] : []),
@@ -109,71 +130,34 @@ export default async function HotelDetailsPage({ params }) {
 
     address: {
       "@type": "PostalAddress",
+      streetAddress: hotel.address || "",
       addressLocality: hotel.locality.name,
       addressRegion: hotel.city.name,
       addressCountry: "IN",
+      postalCode: hotel.pincode || "",
     },
 
-    aggregateRating: hotel.rating
-      ? {
-          "@type": "AggregateRating",
-          ratingValue: (hotel.rating / 10).toFixed(1),
-          reviewCount: hotel.reviewCount || 3,
-        }
-      : undefined,
-
-    /* ✅ STATIC REVIEWS (TEMPORARY) */
-    review: [
-      {
-        "@type": "Review",
-        author: {
-          "@type": "Person",
-          name: "Rahul Sharma",
-        },
-        datePublished: "2025-03-15",
-        reviewBody:
-          "Clean rooms, good location and polite staff. Value for money stay.",
-        reviewRating: {
-          "@type": "Rating",
-          ratingValue: "4.5",
-          bestRating: "5",
-        },
-      },
-      {
-        "@type": "Review",
-        author: {
-          "@type": "Person",
-          name: "Ananya Verma",
-        },
-        datePublished: "2025-12-21",
-        reviewBody:
-          "Comfortable stay with nice amenities. Would recommend for families.",
-        reviewRating: {
-          "@type": "Rating",
-          ratingValue: "4.2",
-          bestRating: "5",
-        },
-      },
-    ],
+    geo:
+      hotel.geo?.lat && hotel.geo?.lng
+        ? {
+            "@type": "GeoCoordinates",
+            latitude: hotel.geo.lat,
+            longitude: hotel.geo.lng,
+          }
+        : undefined,
 
     priceRange: `₹${hotel.priceStartingFrom}+`,
 
-    offers: {
+    makesOffer: {
       "@type": "Offer",
       priceCurrency: "INR",
       price: hotel.priceStartingFrom,
       availability: "https://schema.org/InStock",
       url: `${process.env.NEXT_PUBLIC_BASE_URL}/hotel/${hotel.slug}`,
     },
-
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: hotel.geo.lat,
-      longitude: hotel.geo.lng,
-    },
-
-    url: `${process.env.NEXT_PUBLIC_BASE_URL}/hotel/${hotel.slug}`,
   };
+
+  /* ---------------- FAQ SCHEMA (OPTIONAL) ---------------- */
 
   const faqSchema =
     hotel.faqs?.length > 0
@@ -191,7 +175,8 @@ export default async function HotelDetailsPage({ params }) {
         }
       : null;
 
-  // Fetch similar hotels
+  /* ---------------- SIMILAR HOTELS ---------------- */
+
   const similarHotels = await fetchSimilarHotels({
     cityId: hotel.city._id,
     price: hotel.priceStartingFrom,
@@ -202,7 +187,7 @@ export default async function HotelDetailsPage({ params }) {
 
   return (
     <>
-      {/* Breadcrumb Schema */}
+      {/* Breadcrumb Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -218,7 +203,7 @@ export default async function HotelDetailsPage({ params }) {
         }}
       />
 
-      {/* FAQ Schema */}
+      {/* FAQ Structured Data */}
       {faqSchema && (
         <script
           type="application/ld+json"

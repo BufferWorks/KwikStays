@@ -16,16 +16,12 @@ import { fetchSearchResults } from "@/lib/hotels";
 /* ---------------- SEO METADATA ---------------- */
 
 export async function generateMetadata({ params }) {
-  const { citySlug } = await params;
-
+  const { citySlug } = params;
   const data = await fetchHotelsByCity(citySlug);
 
   if (!data || data.hotels.length === 0) {
     return {
-      robots: {
-        index: false,
-        follow: false,
-      },
+      robots: { index: false, follow: false },
     };
   }
 
@@ -38,28 +34,33 @@ export async function generateMetadata({ params }) {
     alternates: {
       canonical: `${process.env.NEXT_PUBLIC_BASE_URL}/hotels/${citySlug}`,
     },
-    robots: {
-      index: true,
-      follow: true,
+
+    robots: { index: true, follow: true },
+
+    other: {
+      "last-modified": new Date().toISOString(),
     },
 
     openGraph: {
       title: `Hotels in ${cityName} | Best Prices`,
       description: `Compare hotels in ${cityName}. Book budget and premium stays with trusted reviews.`,
-      type: "website",
       url: `${process.env.NEXT_PUBLIC_BASE_URL}/hotels/${citySlug}`,
+      type: "website",
+      images: [
+        {
+          url: `/og/cities/${citySlug}.jpg`,
+          width: 1200,
+          height: 630,
+          alt: `Hotels in ${cityName}`,
+        },
+      ],
     },
 
     twitter: {
       card: "summary_large_image",
       title: `Hotels in ${cityName} | Best Prices`,
       description: `Compare hotels in ${cityName}. Book budget and premium stays with trusted reviews.`,
-      images: [
-        {
-          url: "/default-hotel.jpg",
-          alt: `Hotels in ${cityName}`,
-        },
-      ],
+      images: [`/og/cities/${citySlug}.jpg`],
     },
   };
 }
@@ -261,7 +262,7 @@ export default async function HotelsByCityPage({ params, searchParams }) {
                 "@type": "ListItem",
                 position: 1,
                 name: "India",
-                item: `${process.env.NEXT_PUBLIC_BASE_URL}`,
+                item: process.env.NEXT_PUBLIC_BASE_URL,
               },
               {
                 "@type": "ListItem",
