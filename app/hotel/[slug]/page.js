@@ -6,7 +6,7 @@ import { fetchHotelBySlug, fetchSimilarHotels } from "@/lib/hotel";
 /* ---------------- SEO METADATA ---------------- */
 
 export async function generateMetadata({ params }) {
-  const { slug } = params;
+  const { slug } = await params;
 
   const hotel = await fetchHotelBySlug(slug);
 
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }) {
       title,
       description,
       url,
-      type: "hotel",
+      type: "website",
       images: hotel.heroImage
         ? [
             {
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }) {
 /* ---------------- PAGE ---------------- */
 
 export default async function HotelDetailsPage({ params }) {
-  const { slug } = params;
+  const { slug } = await params;
 
   const hotel = await fetchHotelBySlug(slug);
 
