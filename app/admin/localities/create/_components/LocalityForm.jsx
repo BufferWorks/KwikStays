@@ -35,6 +35,9 @@ export default function LocalityForm() {
     }, []);
 
     const handleChange = (field, value) => {
+        if (field === 'name') {
+            value = value.replace(/\b\w/g, c => c.toUpperCase());
+        }
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
