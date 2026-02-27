@@ -95,16 +95,24 @@ export default function HotelDetailsPage() {
                         </span>
                     </div>
                 </div>
-                <button
-                    onClick={toggleStatus}
-                    disabled={toggling}
-                    className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ${hotel.isActive
-                        ? 'bg-red-600 hover:bg-red-500 focus:ring-red-600'
-                        : 'bg-green-600 hover:bg-green-500 focus:ring-green-600'
-                        }`}
-                >
-                    {toggling ? 'Updating...' : (hotel.isActive ? 'Deactivate Hotel' : 'Activate Hotel')}
-                </button>
+                <div className="flex items-center gap-4">
+                    <Link
+                        href={`/admin/hotels/${hotel._id}/edit`}
+                        className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    >
+                        Edit Hotel
+                    </Link>
+                    <button
+                        onClick={toggleStatus}
+                        disabled={toggling}
+                        className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ${hotel.isActive
+                            ? 'bg-red-600 hover:bg-red-500 focus:ring-red-600'
+                            : 'bg-green-600 hover:bg-green-500 focus:ring-green-600'
+                            }`}
+                    >
+                        {toggling ? 'Updating...' : (hotel.isActive ? 'Deactivate Hotel' : 'Activate Hotel')}
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">

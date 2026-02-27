@@ -16,7 +16,7 @@ const TABS = [
     { id: 'seo', name: 'SEO & Extras', icon: TagIcon }, // Reusing TagIcon generically
 ];
 
-export default function HotelForm() {
+export default function HotelForm({ initialData = null }) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('basic');
     const [loading, setLoading] = useState(false);
@@ -29,50 +29,97 @@ export default function HotelForm() {
     const [categories, setCategories] = useState([]);
 
     // Form State
-    const [formData, setFormData] = useState({
-        name: "",
-        slug: "",
-        citySlug: "",
-        localitySlug: "",
-        categories: [], // IDs or Slugs? API expects Slugs for creation hookups usually, let's check. Schema has ObjectIds. API resolves slugs. Stick to slugs.
+    const [formData, setFormData] = useState(() => {
+        if (initialData) {
+            return {
+                _id: initialData._id,
+                name: initialData.name || "",
+                slug: initialData.slug || "",
+                citySlug: initialData.city?.slug || "",
+                localitySlug: initialData.locality?.slug || "",
+                categories: initialData.categories?.map(c => c.slug) || [],
 
-        description: "",
-        address: { full: "", street: "", area: "", city: "", state: "", pincode: "" },
-        geo: { lat: "", lng: "" },
+                description: initialData.description || "",
+                address: initialData.address || { full: "", street: "", area: "", city: "", state: "", pincode: "" },
+                geo: initialData.geo || { lat: "", lng: "" },
 
-        rating: 4.5,
-        reviewCount: 0,
+                rating: initialData.rating || 4.5,
+                reviewCount: initialData.reviewCount || 0,
 
-        priceStartingFrom: "",
-        originalPrice: "",
-        taxes: 12, // %
-        currency: "INR",
+                priceStartingFrom: initialData.priceStartingFrom || "",
+                originalPrice: initialData.originalPrice || "",
+                taxes: initialData.taxes || 12,
+                currency: initialData.currency || "INR",
 
-        hotelAmenities: [],
-        roomTypes: [], // Complex array
+                hotelAmenities: initialData.hotelAmenities || [],
+                roomTypes: initialData.roomTypes || [],
 
-        policies: {
-            checkIn: "12:00 PM",
-            checkOut: "11:00 AM",
-            coupleAllowed: true,
-            idProof: true
-        },
+                policies: initialData.policies || {
+                    checkIn: "12:00 PM",
+                    checkOut: "11:00 AM",
+                    coupleAllowed: true,
+                    idProof: true
+                },
 
-        faqs: [
-            { question: "What are the check-in and check-out times?", answer: "Check-In is from 12:00 PM and Check-Out is until 11:00 AM." },
-            { question: "Is parking available at the hotel?", answer: "Yes, we provide free parking for all our guests." }
-        ],
+                faqs: initialData.faqs?.length ? initialData.faqs : [
+                    { question: "What are the check-in and check-out times?", answer: "Check-In is from 12:00 PM and Check-Out is until 11:00 AM." },
+                    { question: "Is parking available at the hotel?", answer: "Yes, we provide free parking for all our guests." }
+                ],
 
-        seo: { title: "", description: "" },
-        isHomeFeatured: false
+                seo: initialData.seo || { title: "", description: "" },
+                isHomeFeatured: initialData.isHomeFeatured || false,
+                isActive: initialData.isActive ?? true
+            };
+        }
+
+        return {
+            name: "",
+            slug: "",
+            citySlug: "",
+            localitySlug: "",
+            categories: [],
+
+            description: "",
+            address: { full: "", street: "", area: "", city: "", state: "", pincode: "" },
+            geo: { lat: "", lng: "" },
+
+            rating: 4.5,
+            reviewCount: 0,
+
+            priceStartingFrom: "",
+            originalPrice: "",
+            taxes: 12, // %
+            currency: "INR",
+
+            hotelAmenities: [],
+            roomTypes: [], // Complex array
+
+            policies: {
+                checkIn: "12:00 PM",
+                checkOut: "11:00 AM",
+                coupleAllowed: true,
+                idProof: true
+            },
+
+            faqs: [
+                { question: "What are the check-in and check-out times?", answer: "Check-In is from 12:00 PM and Check-Out is until 11:00 AM." },
+                { question: "Is parking available at the hotel?", answer: "Yes, we provide free parking for all our guests." }
+            ],
+
+            seo: { title: "", description: "" },
+            isHomeFeatured: false,
+            isActive: true
+        };
     });
 
-    // File State
-    const [heroImage, setHeroImage] = useState(null);
-    const [gallery, setGallery] = useState([]);
+    // File State - using existing URLs if present
+    const [heroImage, setHeroImage] = useState(initialData?.heroImage || null);
+    const [gallery, setGallery] = useState(initialData?.gallery || []);
 
     // Room Type Images: Keyed by index
     // We store the File objects here. The RoomTypeManager passes them up.
+    // However, for existing rooms, the URL is stored in roomTypes directly, 
+    // so we largely rely on that unless specifically replacing an image.
     const [roomTypeImages, setRoomTypeImages] = useState({});
 
     /* ---------------- Fetch Dependencies ---------------- */
@@ -282,19 +329,27 @@ export default function HotelForm() {
                 submitData.append(`roomTypeImage_${index}`, roomTypeImages[index]);
             });
 
-            const res = await fetch("/api/hotels", {
-                method: "POST",
+            const isEditMode = !!initialData;
+            const endpoint = isEditMode ? `/api/hotels/by-id/${initialData._id}` : "/api/hotels";
+            const method = isEditMode ? "PATCH" : "POST";
+
+            const res = await fetch(endpoint, {
+                method: method,
                 body: submitData
             });
 
             if (!res.ok) {
                 const data = await res.json();
-                throw new Error(data.message || "Failed to create hotel");
+                throw new Error(data.message || `Failed to ${isEditMode ? 'update' : 'create'} hotel`);
             }
 
             setSuccess(true);
             setTimeout(() => {
-                router.push("/admin"); // Redirect
+                if (isEditMode) {
+                    router.push(`/admin/hotels/${initialData._id}`);
+                } else {
+                    router.push("/admin"); // Redirect
+                }
             }, 2000);
 
         } catch (err) {
@@ -308,8 +363,8 @@ export default function HotelForm() {
         return (
             <div className="flex flex-col items-center justify-center py-20">
                 <CheckCircleIcon className="h-16 w-16 text-green-500" />
-                <h2 className="mt-4 text-2xl font-bold text-gray-900">Hotel Created Successfully!</h2>
-                <p className="text-gray-500">Redirecting you to dashboard...</p>
+                <h2 className="mt-4 text-2xl font-bold text-gray-900">Hotel {initialData ? 'Updated' : 'Created'} Successfully!</h2>
+                <p className="text-gray-500">Redirecting you...</p>
             </div>
         );
     }
@@ -800,7 +855,7 @@ export default function HotelForm() {
                     disabled={loading}
                     className="rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:opacity-50"
                 >
-                    {loading ? 'Creating...' : 'Create Hotel'}
+                    {loading ? 'Saving...' : (initialData ? 'Update Hotel' : 'Create Hotel')}
                 </button>
             </div>
 
