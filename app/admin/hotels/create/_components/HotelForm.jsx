@@ -37,7 +37,7 @@ export default function HotelForm() {
         categories: [], // IDs or Slugs? API expects Slugs for creation hookups usually, let's check. Schema has ObjectIds. API resolves slugs. Stick to slugs.
 
         description: "",
-        address: { full: "", street: "", zip: "" },
+        address: { full: "", street: "", area: "", city: "", state: "", pincode: "" },
         geo: { lat: "", lng: "" },
 
         rating: 4.5,
@@ -108,26 +108,111 @@ export default function HotelForm() {
         fetchLocalities();
     }, [formData.citySlug]);
 
+    // Auto-generate full address
+    useEffect(() => {
+        const { street, area, city, state, pincode } = formData.address;
+        const parts = [street, area, city, state].filter(Boolean);
+        let fullAddress = parts.join(", ");
+        if (fullAddress && pincode) {
+            fullAddress += ` - ${pincode}`;
+        } else if (pincode) {
+            fullAddress = pincode;
+        }
+
+        if (formData.address.full !== fullAddress && (street || area || city || state || pincode || fullAddress === "")) {
+            setFormData(prev => ({
+                ...prev,
+                address: { ...prev.address, full: fullAddress }
+            }));
+        }
+    }, [formData.address.street, formData.address.area, formData.address.city, formData.address.state, formData.address.pincode]);
 
     /* ---------------- Handlers ---------------- */
+    const capitalizeWords = (str) => {
+        if (!str) return '';
+        // Replaces first character of each word sequence without touching spaces
+        return str.replace(/\b\w/g, c => c.toUpperCase());
+    };
+
+    const updateFormDataWithSEO = (prev, nextData) => {
+        const oldArea = prev.address?.area || '';
+        let oldCity = prev.address?.city || '';
+        if (!oldCity && prev.citySlug) {
+            const foundCity = cities.find(c => c.slug === prev.citySlug);
+            if (foundCity) oldCity = foundCity.name;
+        }
+        let oldLocStr = oldArea && oldCity ? `in ${oldArea}, ${oldCity}` : (oldArea ? `in ${oldArea}` : (oldCity ? `in ${oldCity}` : ''));
+        const oldName = prev.name || '';
+
+        let oldTitle = '';
+        let oldDesc = '';
+        if (oldName) {
+            oldTitle = `Hotel ${oldName} ${oldLocStr} | Best Price`.replace(/\s+/g, ' ').trim();
+            oldDesc = `Book ${oldName} ${oldLocStr}. Clean rooms, modern amenities and best prices guaranteed.`.replace(/\s+/g, ' ').trim();
+        }
+
+        const newArea = nextData.address?.area || '';
+        let newCity = nextData.address?.city || '';
+        if (!newCity && nextData.citySlug) {
+            const foundCity = cities.find(c => c.slug === nextData.citySlug);
+            if (foundCity) newCity = foundCity.name;
+        }
+        let newLocStr = newArea && newCity ? `in ${newArea}, ${newCity}` : (newArea ? `in ${newArea}` : (newCity ? `in ${newCity}` : ''));
+        const newName = nextData.name || '';
+
+        let newTitle = '';
+        let newDesc = '';
+        if (newName) {
+            newTitle = `Hotel ${newName} ${newLocStr} | Best Price`.replace(/\s+/g, ' ').trim();
+            newDesc = `Book ${newName} ${newLocStr}. Clean rooms, modern amenities and best prices guaranteed.`.replace(/\s+/g, ' ').trim();
+        }
+
+        const currentTitle = prev.seo?.title || '';
+        const currentDesc = prev.seo?.description || '';
+
+        const seoUpdates = { ...nextData.seo };
+
+        if (!currentTitle || currentTitle === oldTitle) seoUpdates.title = newTitle;
+        if (!currentDesc || currentDesc === oldDesc) seoUpdates.description = newDesc;
+
+        nextData.seo = seoUpdates;
+        return nextData;
+    };
+
     const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        if (field === 'name') {
+            value = capitalizeWords(value);
+        }
+        setFormData(prev => {
+            const nextData = { ...prev, [field]: value };
+            return updateFormDataWithSEO(prev, nextData);
+        });
     };
 
     const handleNestedChange = (parent, field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [parent]: { ...prev[parent], [field]: value }
-        }));
+        if (parent === 'address' && ['street', 'area', 'city', 'state'].includes(field)) {
+            value = capitalizeWords(value);
+        }
+        setFormData(prev => {
+            const nextData = {
+                ...prev,
+                [parent]: { ...prev[parent], [field]: value }
+            };
+            return updateFormDataWithSEO(prev, nextData);
+        });
     };
 
-    // Auto-slug
     const handleNameBlur = () => {
-        if (!formData.slug && formData.name) {
-            const baseSlug = formData.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
-            const randomSuffix = Math.floor(100000 + Math.random() * 900000); // 6 digit random number
-            handleChange("slug", `${baseSlug}-${randomSuffix}`);
-        }
+        if (!formData.name) return;
+        setFormData(prev => {
+            const updates = { ...prev };
+            if (!prev.slug) {
+                const baseSlug = prev.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
+                const randomSuffix = Math.floor(100000 + Math.random() * 900000); // 6 digit random number
+                updates.slug = `${baseSlug}-${randomSuffix}`;
+            }
+            return updates;
+        });
     };
 
     const handleRoomTypeImageChange = (index, file) => {

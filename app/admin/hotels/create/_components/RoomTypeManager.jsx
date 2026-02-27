@@ -36,8 +36,19 @@ export default function RoomTypeManager({ roomTypes, onChange, onImageChange }) 
         setExpandedIndex(Math.max(0, index - 1));
     };
 
+    const capitalizeWords = (str) => {
+        if (!str) return '';
+        // Replaces first character of each word sequence without touching spaces
+        return str.replace(/\b\w/g, c => c.toUpperCase());
+    };
+
     const updateRoomType = (index, field, value) => {
         const updated = [...roomTypes];
+
+        if (field === "name") {
+            value = capitalizeWords(value);
+        }
+
         updated[index] = { ...updated[index], [field]: value };
 
         // Auto-generate slug from name if slug is empty or matches old name slug
