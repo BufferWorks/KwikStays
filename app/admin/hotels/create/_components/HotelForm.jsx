@@ -58,6 +58,11 @@ export default function HotelForm() {
             idProof: true
         },
 
+        faqs: [
+            { question: "What are the check-in and check-out times?", answer: "Check-In is from 12:00 PM and Check-Out is until 11:00 AM." },
+            { question: "Is parking available at the hotel?", answer: "Yes, we provide free parking for all our guests." }
+        ],
+
         seo: { title: "", description: "" },
         isHomeFeatured: false
     });
