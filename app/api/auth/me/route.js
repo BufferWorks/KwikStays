@@ -24,14 +24,28 @@ export async function GET(req) {
       return NextResponse.json({ user: null }, { status: 200 });
     }
 
-    return NextResponse.json({
-      user,
-    });
+    return NextResponse.json({ user });
   } catch (err) {
-    console.error("Auth me error:", err);
-    return NextResponse.json(
-      { user: null },
-      { status: 200 }, // IMPORTANT: never 401 here
-    );
+    // Silently handle expected auth errors (expired/invalid tokens)
+    // Clear the stale cookie so the browser doesn't keep sending it
+    const isExpectedError =
+      err.name === "TokenExpiredError" || err.name === "JsonWebTokenError";
+
+    if (!isExpectedError) {
+      console.error("Auth me error:", err);
+    }
+
+    const response = NextResponse.json({ user: null }, { status: 200 });
+
+    // Clear the expired cookie
+    if (isExpectedError) {
+      response.cookies.set("auth_token", "", {
+        httpOnly: true,
+        maxAge: 0,
+        path: "/",
+      });
+    }
+
+    return response;
   }
 }

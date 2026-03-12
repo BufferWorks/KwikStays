@@ -12,7 +12,8 @@ const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
-    const { user, logout, loading } = useAuth();
+    const auth = useAuth();
+    const { user, logout, loading } = auth ?? { user: null, logout: () => { }, loading: true };
 
     // Check if we are on the home page
     const isHome = pathname === "/";
