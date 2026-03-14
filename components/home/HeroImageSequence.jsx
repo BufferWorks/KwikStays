@@ -1,150 +1,169 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 
 const HERO_SESSION_KEY = "kwikstays_hero_played";
+const FRAME_COUNT = 300;
+const PRIORITY_FRAMES = 30; // Load these first before showing anything
+
+const getFrameSrc = (i) => {
+    const n = i.toString().padStart(3, "0");
+    return `/herosectionframes/ezgif-frame-${n}.webp`;
+};
 
 const HeroImageSequence = ({ children }) => {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
-    const imagesRef = useRef([]); // Use ref to avoid re-renders during load
-    const [isLoaded, setIsLoaded] = useState(false);
+    const imagesRef = useRef(new Array(FRAME_COUNT).fill(null));
+    const currentFrameRef = useRef(0);
+    const rafRef = useRef(null);
+
+    const [isReady, setIsReady] = useState(false);        // true when first batch loaded
     const [loadProgress, setLoadProgress] = useState(0);
-    const [alreadyPlayed, setAlreadyPlayed] = useState(false);
+    const [alreadyPlayed] = useState(() => {
+        if (typeof window === "undefined") return false;
+        return sessionStorage.getItem(HERO_SESSION_KEY) === "true";
+    });
 
-    const frameCount = 300;
-
-    // Check session on mount
-    useEffect(() => {
-        const played = sessionStorage.getItem(HERO_SESSION_KEY) === "true";
-        setAlreadyPlayed(played);
-    }, []);
-
-    // Load images
-    useEffect(() => {
-        const loadImages = async () => {
-            const loadedImages = [];
-            let loadedCount = 0;
-            const imagePromises = [];
-
-            for (let i = 1; i <= frameCount; i++) {
-                const img = new Image();
-                const frameNumber = i.toString().padStart(3, "0");
-                img.src = `/herosectionframes/ezgif-frame-${frameNumber}.webp`;
-
-                const p = new Promise((resolve) => {
-                    img.onload = () => {
-                        loadedCount++;
-                        setLoadProgress(Math.round((loadedCount / frameCount) * 100));
-                        resolve();
-                    };
-                    img.onerror = () => resolve();
-                });
-
-                imagePromises.push(p);
-                loadedImages.push(img);
-            }
-
-            await Promise.all(imagePromises);
-            imagesRef.current = loadedImages;
-            setIsLoaded(true);
-        };
-
-        loadImages();
-    }, []);
-
-    // Rendering & scroll logic
-    useEffect(() => {
+    // ── Draw canvas ──────────────────────────────────────────────
+    const renderFrame = useCallback((index) => {
         const canvas = canvasRef.current;
-        if (!canvas || !isLoaded || imagesRef.current.length === 0) return;
-
+        if (!canvas) return;
         const context = canvas.getContext("2d");
         if (!context) return;
 
-        const renderFrame = (index) => {
-            const img = imagesRef.current[index];
-            if (!img || !img.width) return;
-
-            const canvasAspect = canvas.width / canvas.height;
-            const imgAspect = img.width / img.height;
-
-            let renderWidth, renderHeight, offsetX, offsetY;
-
-            if (canvasAspect > imgAspect) {
-                renderWidth = canvas.width;
-                renderHeight = canvas.width / imgAspect;
-                offsetX = 0;
-                offsetY = (canvas.height - renderHeight) / 2;
-            } else {
-                renderWidth = canvas.height * imgAspect;
-                renderHeight = canvas.height;
-                offsetX = (canvas.width - renderWidth) / 2;
-                offsetY = 0;
+        // If requested frame not loaded yet, find nearest loaded one
+        let img = imagesRef.current[index];
+        if (!img) {
+            // Search backwards for nearest loaded frame
+            for (let i = index - 1; i >= 0; i--) {
+                if (imagesRef.current[i]) { img = imagesRef.current[i]; break; }
             }
+        }
+        if (!img) return;
 
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(img, offsetX, offsetY, renderWidth, renderHeight);
-        };
+        const canvasAspect = canvas.width / canvas.height;
+        const imgAspect = img.width / img.height;
+        let rW, rH, oX, oY;
 
-        const handleResize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            // Re-render current frame after resize
-            if (alreadyPlayed) {
-                renderFrame(frameCount - 1);
-            }
-        };
-
-        window.addEventListener("resize", handleResize);
-        handleResize();
-
-        // If already played this session: just render last frame statically
-        if (alreadyPlayed) {
-            renderFrame(frameCount - 1);
-            return () => window.removeEventListener("resize", handleResize);
+        if (canvasAspect > imgAspect) {
+            rW = canvas.width; rH = canvas.width / imgAspect;
+            oX = 0; oY = (canvas.height - rH) / 2;
+        } else {
+            rW = canvas.height * imgAspect; rH = canvas.height;
+            oX = (canvas.width - rW) / 2; oY = 0;
         }
 
-        // First time: attach scroll handler
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(img, oX, oY, rW, rH);
+    }, []);
+
+    // ── Load a single image ──────────────────────────────────────
+    const loadImage = useCallback((index) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = getFrameSrc(index + 1); // frames are 1-indexed
+            img.onload = () => {
+                imagesRef.current[index] = img;
+                resolve();
+            };
+            img.onerror = () => resolve();
+        });
+    }, []);
+
+    // ── Main loading strategy ────────────────────────────────────
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        const run = async () => {
+            // PHASE 1: Load priority frames (1–30) fast, in parallel
+            const priorityBatch = [];
+            for (let i = 0; i < PRIORITY_FRAMES; i++) {
+                priorityBatch.push(loadImage(i));
+            }
+            await Promise.all(priorityBatch);
+
+            // Reveal canvas with first frame
+            renderFrame(0);
+            setIsReady(true);
+            setLoadProgress(Math.round((PRIORITY_FRAMES / FRAME_COUNT) * 100));
+
+            // PHASE 2: Load remaining frames in small chunks (don't block UI)
+            const chunkSize = 20;
+            let loaded = PRIORITY_FRAMES;
+
+            for (let start = PRIORITY_FRAMES; start < FRAME_COUNT; start += chunkSize) {
+                const end = Math.min(start + chunkSize, FRAME_COUNT);
+                const chunk = [];
+                for (let i = start; i < end; i++) chunk.push(loadImage(i));
+                await Promise.all(chunk);
+
+                loaded += (end - start);
+                setLoadProgress(Math.round((loaded / FRAME_COUNT) * 100));
+
+                // Yield to browser between chunks
+                await new Promise((r) => setTimeout(r, 0));
+            }
+
+            // Mark session as played when full sequence loads (for alreadyPlayed mode too)
+            // sessionStorage is only set when user actually SCROLLS through — see scroll handler
+        };
+
+        run();
+    }, [loadImage, renderFrame]);
+
+    // ── Resize handler ──────────────────────────────────────────
+    useEffect(() => {
+        const handleResize = () => {
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            renderFrame(currentFrameRef.current);
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, [renderFrame]);
+
+    // ── Scroll handler (only for first-time animation) ──────────
+    useEffect(() => {
+        if (!isReady || alreadyPlayed) return;
+
         const handleScroll = () => {
             if (!containerRef.current) return;
-
-            const container = containerRef.current;
-            const rect = container.getBoundingClientRect();
-
-            const scrollDistance = container.scrollHeight - window.innerHeight;
+            const rect = containerRef.current.getBoundingClientRect();
+            const scrollDistance = containerRef.current.scrollHeight - window.innerHeight;
             const scrolled = -rect.top;
 
-            let progress = scrolled / scrollDistance;
-            progress = Math.max(0, Math.min(1, progress));
+            let progress = Math.max(0, Math.min(1, scrolled / scrollDistance));
+            const frameIndex = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
+            currentFrameRef.current = frameIndex;
 
-            const frameIndex = Math.min(frameCount - 1, Math.floor(progress * frameCount));
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+            rafRef.current = requestAnimationFrame(() => renderFrame(frameIndex));
 
-            // When animation finishes, mark as played in session
             if (progress >= 1) {
                 sessionStorage.setItem(HERO_SESSION_KEY, "true");
             }
-
-            requestAnimationFrame(() => renderFrame(frameIndex));
         };
 
-        window.addEventListener("scroll", handleScroll);
-        renderFrame(0);
-
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => {
             window.removeEventListener("scroll", handleScroll);
-            window.removeEventListener("resize", handleResize);
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
-    }, [isLoaded, alreadyPlayed]);
+    }, [isReady, alreadyPlayed, renderFrame]);
 
-    // If already played → render as a static full-screen section (no scroll track)
+    // ── Static mode (already played this session) ────────────────
     if (alreadyPlayed) {
         return (
             <div className="relative h-screen w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
-                <canvas
-                    ref={canvasRef}
-                    className="w-full h-full block object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                <canvas ref={canvasRef} className="w-full h-full block" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-center items-center">
                     {children}
                 </div>
@@ -152,24 +171,31 @@ const HeroImageSequence = ({ children }) => {
         );
     }
 
-    // First time → full 800vh scroll animation
+    // ── Full animation mode (first visit) ───────────────────────
     return (
         <div ref={containerRef} className="relative h-[800vh] w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-black">
             <div className="sticky top-0 h-screen w-full overflow-hidden">
-                {!isLoaded && (
-                    <div className="absolute bottom-8 right-8 z-30 flex items-center gap-3 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
-                        <div className="w-4 h-4 rounded-full border-2 border-orange-500 border-t-transparent animate-spin"></div>
-                        <p className="text-sm font-medium text-white/90">Loading Experience... {loadProgress}%</p>
+
+                {/* Loading pill — only while priority frames aren't ready */}
+                {!isReady && (
+                    <div className="absolute inset-0 flex items-center justify-center z-40 bg-black">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="w-8 h-8 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+                            <p className="text-white/70 text-sm">Loading... {loadProgress}%</p>
+                        </div>
                     </div>
                 )}
-                <canvas
-                    ref={canvasRef}
-                    className="w-full h-full block object-cover"
-                />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none md:via-black/10"></div>
 
-                {/* Content Overlay */}
+                {/* Background loading indicator (after ready, while rest loads) */}
+                {isReady && loadProgress < 100 && (
+                    <div className="absolute bottom-8 right-8 z-30 flex items-center gap-2 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/10">
+                        <div className="w-3 h-3 rounded-full border border-orange-500 border-t-transparent animate-spin" />
+                        <p className="text-xs text-white/60">{loadProgress}%</p>
+                    </div>
+                )}
+
+                <canvas ref={canvasRef} className="w-full h-full block" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none md:via-black/10" />
                 <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-center items-center">
                     {children}
                 </div>
